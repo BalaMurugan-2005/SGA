@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeMaster | Login</title>
+    <link rel="stylesheet" href="/frontend/css/students/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="illustration">
+            <div class="logo">GradeMaster</div>
+            <div class="tagline">Track, Calculate, Succeed</div>
+            <div class="graphic">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <ul class="features">
+                <li><i class="fas fa-check-circle"></i> Real-time grade tracking</li>
+                <li><i class="fas fa-check-circle"></i> Performance analytics</li>
+                <li><i class="fas fa-check-circle"></i> Assignment management</li>
+                <li><i class="fas fa-check-circle"></i> Progress reports</li>
+            </ul>
+        </div>
+        <div class="login-form">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to access your GradeMaster account</p>
+            </div>
+            <div class="user-type-toggle">
+                <button class="user-type-btn active" id="student-btn">Login as Student</button>
+                <button class="user-type-btn" id="teacher-btn">Login as Teacher</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Enter your username or email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentBtn = document.getElementById('student-btn');
+            const teacherBtn = document.getElementById('teacher-btn');
+            const loginForm = document.getElementById('loginForm');
+            
+            // Toggle between student and teacher login
+            studentBtn.addEventListener('click', function() {
+                studentBtn.classList.add('active');
+                teacherBtn.classList.remove('active');
+                document.querySelector('.login-btn').textContent = 'Sign In as Student';
+            });
+            
+            teacherBtn.addEventListener('click', function() {
+                teacherBtn.classList.add('active');
+                studentBtn.classList.remove('active');
+                document.querySelector('.login-btn').textContent = 'Sign In as Teacher';
+            });
+            
+            // Form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const isStudent = studentBtn.classList.contains('active');
+                
+                // Simple validation
+                if (username && password) {
+                    // In a real app, you would send this data to a server
+                    // For demo purposes, we'll just redirect
+                    if (isStudent) {
+                        window.location.href = 'student-dashboard.html';
+                    } else {
+                        window.location.href = 'teacher-dashboard.html';
+                    }
+                } else {
+                    alert('Please fill in all fields');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

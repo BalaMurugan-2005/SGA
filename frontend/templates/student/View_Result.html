@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeMaster | View Result</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/css/students/View_result.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">Grade<span>Master</span></div>
+        </div>
+        <div class="nav-right">
+            <div class="profile" id="profile">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="#"><i class="fas fa-user-circle"></i> View Profile</a>
+                <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#" class="active"><i class="fas fa-file-invoice"></i> View Result</a></li>
+            <li><a href="#"><i class="fas fa-trophy"></i> View Rank</a></li>
+            <li><a href="#"><i class="fas fa-book"></i> Subjects</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+            <li><a href="#"><i class="fas fa-chart-line"></i> Performance</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <h1 class="page-title">Academic Results</h1>
+        
+        <!-- Student Summary Card -->
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Student Information</h3>
+                </div>
+                <div class="data-placeholder">
+                    <i class="fas fa-user-graduate"></i>
+                    <p>Student data will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marks Table -->
+        <div class="table-container">
+            <h2 class="table-title"><i class="fas fa-table"></i> Subject-wise Marks</h2>
+            <div class="data-placeholder">
+                <i class="fas fa-table"></i>
+                <p>Subject marks and grades will appear here</p>
+            </div>
+        </div>
+
+        <!-- Result Summary -->
+        <div class="result-summary">
+            <div class="summary-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-chart-bar"></i>
+                    <p>Total Marks</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-percentage"></i>
+                    <p>Percentage</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-award"></i>
+                    <p>Overall Grade</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-clipboard-check"></i>
+                    <p>Result Status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Button -->
+        <div class="btn-container">
+            <button class="download-btn" id="downloadBtn">
+                <i class="fas fa-download"></i> Download Report Card
+            </button>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const profile = document.getElementById('profile');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Toggle sidebar
+            hamburger.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                mainContent.classList.toggle('sidebar-open');
+                
+                // Change hamburger icon
+                const icon = hamburger.querySelector('i');
+                if (sidebar.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+            
+            // Toggle profile dropdown
+            profile.addEventListener('click', function() {
+                profileDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+            
+            // Close sidebar when clicking on a link (for mobile)
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('active');
+                        mainContent.classList.remove('sidebar-open');
+                        hamburger.querySelector('i').classList.remove('fa-times');
+                        hamburger.querySelector('i').classList.add('fa-bars');
+                    }
+                });
+            });
+            
+            // Download button functionality
+            downloadBtn.addEventListener('click', function() {
+                // In a real app, this would generate and download a PDF
+                alert('Report card download started! In a real application, this would generate a PDF file.');
+                
+                // Add a temporary loading effect
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                downloadBtn.disabled = true;
+                
+                setTimeout(() => {
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                }, 2000);
+            });
+
+            // Example of how to populate data (for demonstration)
+            // In a real application, you would fetch this data from your backend
+            function populateResultData() {
+                // This is just an example - replace with actual data from your backend
+                const resultData = {
+                    studentInfo: {
+                        name: "Alex Johnson",
+                        rollNo: "S20230045",
+                        className: "Grade 10 - Section B",
+                        academicYear: "2023-2024",
+                        exam: "Final Term"
+                    },
+                    subjectMarks: [
+                        { subject: "Mathematics", marksObtained: 98, totalMarks: 100, percentage: 98, grade: "A+" },
+                        { subject: "Science", marksObtained: 92, totalMarks: 100, percentage: 92, grade: "A" },
+                        { subject: "English", marksObtained: 88, totalMarks: 100, percentage: 88, grade: "B+" },
+                        { subject: "Social Studies", marksObtained: 85, totalMarks: 100, percentage: 85, grade: "B" },
+                        { subject: "Computer Science", marksObtained: 96, totalMarks: 100, percentage: 96, grade: "A+" }
+                    ],
+                    summary: {
+                        totalMarks: 459,
+                        percentage: 91.8,
+                        overallGrade: "A",
+                        resultStatus: "PASS"
+                    }
+                };
+
+                // This would be implemented when you have real data
+                console.log("Result data ready to be populated:", resultData);
+            }
+
+            // Call this function when your data is ready
+            // populateResultData();
+        });
+    </script>
+</body>
+</html>

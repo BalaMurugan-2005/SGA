@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeMaster | View Rank</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/css/students/view_rank.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">Grade<span>Master</span></div>
+        </div>
+        <div class="nav-right">
+            <div class="profile" id="profile">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="#"><i class="fas fa-user-circle"></i> View Profile</a>
+                <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="view-result.html"><i class="fas fa-file-invoice"></i> View Result</a></li>
+            <li><a href="#" class="active"><i class="fas fa-trophy"></i> View Rank</a></li>
+            <li><a href="#"><i class="fas fa-book"></i> Subjects</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+            <li><a href="#"><i class="fas fa-chart-line"></i> Performance</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <h1 class="page-title"><i class="fas fa-trophy"></i> Class Leaderboard</h1>
+        
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-users"></i>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Your Rank</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-percentage"></i>
+                    <p>Your Percentage</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="data-placeholder">
+                    <i class="fas fa-medal"></i>
+                    <p>Your Grade</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Actions -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name or roll number...">
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn btn-primary" id="dashboardBtn">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Ranking Table -->
+        <div class="ranking-container">
+            <div class="data-placeholder">
+                <i class="fas fa-trophy"></i>
+                <p>Class ranking data will appear here</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const profile = document.getElementById('profile');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const searchInput = document.getElementById('searchInput');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const dashboardBtn = document.getElementById('dashboardBtn');
+            
+            // Toggle sidebar
+            hamburger.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                mainContent.classList.toggle('sidebar-open');
+                
+                // Change hamburger icon
+                const icon = hamburger.querySelector('i');
+                if (sidebar.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+            
+            // Toggle profile dropdown
+            profile.addEventListener('click', function() {
+                profileDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+            
+            // Close sidebar when clicking on a link (for mobile)
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('active');
+                        mainContent.classList.remove('sidebar-open');
+                        hamburger.querySelector('i').classList.remove('fa-times');
+                        hamburger.querySelector('i').classList.add('fa-bars');
+                    }
+                });
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                // This would filter the ranking data when populated
+                console.log("Searching for:", this.value);
+            });
+            
+            // Refresh button functionality
+            refreshBtn.addEventListener('click', function() {
+                // Add loading animation
+                const originalText = refreshBtn.innerHTML;
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                refreshBtn.disabled = true;
+                
+                // Simulate API call
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalText;
+                    refreshBtn.disabled = false;
+                    alert('Rankings updated successfully!');
+                }, 1500);
+            });
+            
+            // Dashboard button functionality
+            dashboardBtn.addEventListener('click', function() {
+                window.location.href = 'student-dashboard.html';
+            });
+
+            // Example of how to populate data (for demonstration)
+            // In a real application, you would fetch this data from your backend
+            function populateRankingData() {
+                // This is just an example - replace with actual data from your backend
+                const rankingData = {
+                    stats: {
+                        totalStudents: 42,
+                        yourRank: 3,
+                        yourPercentage: 91.8,
+                        yourGrade: "A"
+                    },
+                    rankings: [
+                        { rank: 1, name: "Sarah Mitchell", rollNo: "S20230012", totalMarks: 492, percentage: 98.4, grade: "A+" },
+                        { rank: 2, name: "Ryan Johnson", rollNo: "S20230028", totalMarks: 485, percentage: 97.0, grade: "A+" },
+                        { rank: 3, name: "Alex Johnson", rollNo: "S20230045", totalMarks: 459, percentage: 91.8, grade: "A" },
+                        // ... more students
+                    ]
+                };
+
+                // This would be implemented when you have real data
+                console.log("Ranking data ready to be populated:", rankingData);
+            }
+
+            // Call this function when your data is ready
+            // populateRankingData();
+        });
+    </script>
+</body>
+</html>
