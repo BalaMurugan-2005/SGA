@@ -32,11 +32,8 @@
     <aside class="sidebar" id="sidebar">
         <ul class="sidebar-menu">
             <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="#"><i class="fas fa-file-invoice"></i> View Result</a></li>
-            <li><a href="#"><i class="fas fa-trophy"></i> View Rank</a></li>
-            <li><a href="#"><i class="fas fa-book"></i> Subjects</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
-            <li><a href="#"><i class="fas fa-chart-line"></i> Performance</a></li>
+            <li><a href="View_Result.html"><i class="fas fa-file-invoice"></i> View Result</a></li>
+            <li><a href="view_rank.html"><i class="fas fa-trophy"></i> View Rank</a></li>
             <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
             <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -121,74 +118,7 @@
         </div>
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const hamburger = document.getElementById('hamburger');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const profile = document.getElementById('profile');
-            const profileDropdown = document.getElementById('profileDropdown');
-            
-            // Toggle sidebar
-            hamburger.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                mainContent.classList.toggle('sidebar-open');
-                
-                // Change hamburger icon
-                const icon = hamburger.querySelector('i');
-                if (sidebar.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-            
-            // Toggle profile dropdown
-            profile.addEventListener('click', function() {
-                profileDropdown.classList.toggle('active');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
-                    profileDropdown.classList.remove('active');
-                }
-            });
-            
-            // Close sidebar when clicking on a link (for mobile)
-            const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 992) {
-                        sidebar.classList.remove('active');
-                        mainContent.classList.remove('sidebar-open');
-                        hamburger.querySelector('i').classList.remove('fa-times');
-                        hamburger.querySelector('i').classList.add('fa-bars');
-                    }
-                });
-            });
-
-            // Example of how to populate data (for demonstration)
-            // In a real application, you would fetch this data from your backend
-            function populateStudentData() {
-                // This is just an example - replace with actual data from your backend
-                const studentData = {
-                    name: "Alex Johnson",
-                    rollNo: "S20230045",
-                    className: "Grade 10 - Section B",
-                    academicYear: "2023-2024",
-                    attendance: "94%"
-                };
-
-                // This would be implemented when you have real data
-                console.log("Student data ready to be populated:", studentData);
-            }
-
-            // Call this function when your data is ready
-            // populateStudentData();
-        });
-    </script>
+    <!-- ✅ External JS -->
+    <script src="/frontend/js/student/studentdash.js"></script>
 </body>
 </html>
