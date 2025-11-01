@@ -45,43 +45,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ✅ Fetch teacher data from backend
-    async function loadTeacherData() {
-        try {
-            // Replace with the ID of the logged-in teacher
-            const teacherId = "TCH-7284";
-
-            const response = await fetch(`http://localhost:5001/api/teacher/${teacherId}`);
-            if (!response.ok) throw new Error('Failed to fetch teacher data');
-
-            const teacher = await response.json();
-
-            // ✅ Display teacher details in dashboard
-            document.querySelector('.teacher-details').innerHTML = `
-                <div class="detail-item">
-                    <span class="detail-label">Teacher Name:</span>
-                    <span class="detail-value">${teacher.name}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Teacher ID:</span>
-                    <span class="detail-value">${teacher.id}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Subject:</span>
-                    <span class="detail-value">${teacher.subject}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Email:</span>
-                    <span class="detail-value">${teacher.email}</span>
-                </div>
-            `;
-        } catch (error) {
-            console.error(error);
-            document.querySelector('.teacher-details').innerHTML =
-                `<p style="color:red;">⚠️ Unable to load teacher data. Please check backend.</p>`;
-        }
-    }
-
-    // Load teacher data when page opens
+    // ✅ Load teacher data when page opens
     loadTeacherData();
 });
+
+// ✅ Fetch teacher data from backend
+async function loadTeacherData() {
+    try {
+        // Replace with the ID of the logged-in teacher
+        const teacherId = "TCH-7284";
+
+        const response = await fetch(`/api/teacher/${teacherId}`);
+        if (!response.ok) throw new Error('Failed to fetch teacher data');
+
+        const teacher = await response.json();
+
+        // ✅ Display teacher details in dashboard
+        document.querySelector('.teacher-details').innerHTML = `
+            <div class="detail-item">
+                <span class="detail-label">Teacher Name:</span>
+                <span class="detail-value">${teacher.name}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Teacher ID:</span>
+                <span class="detail-value">${teacher.id}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Subject:</span>
+                <span class="detail-value">${teacher.subject}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">${teacher.email}</span>
+            </div>
+        `;
+    } catch (error) {
+        console.error(error);
+        document.querySelector('.teacher-details').innerHTML =
+            `<p style="color:red;">⚠️ Unable to load teacher data. Please check backend.</p>`;
+    }
+}

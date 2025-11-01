@@ -1,18 +1,72 @@
-{
-  "stats": {
-    "yourId": "S20230045",
-    "totalStudents": 10
+[
+  {
+    "id": "S001",
+    "name": "Rahul Kumar",
+    "rollNo": "S001",
+    "class": "10A",
+    "marks": { "tamil": 85, "english": 78, "maths": 92, "science": 88, "social": 80 }
   },
-  "rankings": [
-    { "rank": 1, "name": "Arjun Kumar", "rollNo": "S20230010", "totalMarks": 492, "percentage": 98.4, "grade": "A+" },
-    { "rank": 2, "name": "Kavya Raj", "rollNo": "S20230018", "totalMarks": 485, "percentage": 97.0, "grade": "A+" },
-    { "rank": 3, "name": "Bala Murugan", "rollNo": "S20230045", "totalMarks": 459, "percentage": 91.8, "grade": "A" },
-    { "rank": 4, "name": "Karthik Kumar", "rollNo": "S20230030", "totalMarks": 445, "percentage": 89.0, "grade": "B+" },
-    { "rank": 5, "name": "Priya Devi", "rollNo": "S20230041", "totalMarks": 438, "percentage": 87.6, "grade": "B+" },
-    { "rank": 6, "name": "Suresh", "rollNo": "S20230055", "totalMarks": 421, "percentage": 84.2, "grade": "B" },
-    { "rank": 7, "name": "Harini", "rollNo": "S20230062", "totalMarks": 414, "percentage": 82.8, "grade": "B" },
-    { "rank": 8, "name": "Manoj", "rollNo": "S20230070", "totalMarks": 400, "percentage": 80.0, "grade": "B" },
-    { "rank": 9, "name": "Devi Lakshmi", "rollNo": "S20230081", "totalMarks": 395, "percentage": 79.0, "grade": "C+" },
-    { "rank": 10, "name": "Kiran", "rollNo": "S20230090", "totalMarks": 380, "percentage": 76.0, "grade": "C+" }
-  ]
-}
+  {
+    "id": "S002",
+    "name": "Priya Sharma",
+    "rollNo": "S002",
+    "class": "10A",
+    "marks": { "tamil": 90, "english": 85, "maths": 95, "science": 92, "social": 88 }
+  },
+  {
+    "id": "S003",
+    "name": "Amit Patel",
+    "rollNo": "S003",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S004",
+    "name": "Sneha Reddy",
+    "rollNo": "S004",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S005",
+    "name": "Vikram Singh",
+    "rollNo": "S005",
+    "class": "10A",
+    "marks": { "tamil": 75, "english": 82, "maths": 78, "science": 80, "social": 85 }
+  },
+  {
+    "id": "S006",
+    "name": "Anjali Gupta",
+    "rollNo": "S006",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S007",
+    "name": "Rajesh Kumar",
+    "rollNo": "S007",
+    "class": "10A",
+    "marks": { "tamil": 88, "english": 90, "maths": 85, "science": 87, "social": 82 }
+  },
+  {
+    "id": "S008",
+    "name": "Pooja Mehta",
+    "rollNo": "S008",
+    "class": "10A",
+    "marks": null
+  },
+  {
+    "id": "S009",
+    "name": "Sanjay Verma",
+    "rollNo": "S009",
+    "class": "10A",
+    "marks": { "tamil": 82, "english": 78, "maths": 85, "science": 80, "social": 79 }
+  },
+  {
+    "id": "S010",
+    "name": "Neha Singh",
+    "rollNo": "S010",
+    "class": "10A",
+    "marks": null
+  }
+]
