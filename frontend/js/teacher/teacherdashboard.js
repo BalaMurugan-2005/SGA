@@ -91,23 +91,23 @@ async function loadTeacherData() {
         document.querySelector('.teacher-details').innerHTML = `
             <div class="detail-item">
                 <span class="detail-label">Teacher Name:</span>
-                <span class="detail-value">Prof. Sarah Johnson</span>
+                <span class="detail-value"></span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Teacher ID:</span>
-                <span class="detail-value">TCH-7284</span>
+                <span class="detail-value"></span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Subject:</span>
-                <span class="detail-value">Mathematics</span>
+                <span class="detail-value"></span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Email:</span>
-                <span class="detail-value">sarah.johnson@school.edu</span>
+                <span class="detail-value"></span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Class:</span>
-                <span class="detail-value">10A</span>
+                <span class="detail-value"></span>
             </div>
         `;
     }

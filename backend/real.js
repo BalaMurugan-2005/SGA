@@ -1,5 +1,5 @@
 // ===============================
-// 🚀 Consolidated Teacher Server
+// 🚀 Consolidated Student & Teacher Server
 // ===============================
 const express = require('express');
 const fs = require('fs');
@@ -8,46 +8,118 @@ const cors = require('cors');
 
 const app = express();
 
-// ✅ Allow requests from Live Server and all origins for development
+// ✅ Allow requests from all origins for development
 app.use(cors({
-    origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:5001'],
+    origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:5000'],
     credentials: true
 }));
 
 app.use(express.json());
 
-// ✅ Serve ALL static files from frontend directory
+// ✅ 1. Serve frontend static files (Student)
+app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
+
+// ✅ 2. Serve ALL static files from frontend directory (Teacher)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ===============================
 // 📁 File Paths Configuration
 // ===============================
-const dataDir = path.join(__dirname, 'data', 'teacher');
-const teacherDataPath = path.join(dataDir, 'teacherData.json');
-const marksDataPath = path.join(dataDir, 'studentsMarks.json');
+const studentDataPath = path.join(__dirname, './data/students.json');
+const resultDataPath = path.join(__dirname, './data/resultData.json');
+const rankDataPath = path.join(__dirname, './data/rankData.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+const teacherDataDir = path.join(__dirname, 'data', 'teacher');
+const teacherDataPath = path.join(teacherDataDir, 'teacherData.json');
+const marksDataPath = path.join(teacherDataDir, 'studentsMarks.json');
+
+// Ensure ALL data directories exist
+if (!fs.existsSync(path.dirname(studentDataPath))) {
+    fs.mkdirSync(path.dirname(studentDataPath), { recursive: true });
+}
+if (!fs.existsSync(teacherDataDir)) {
+    fs.mkdirSync(teacherDataDir, { recursive: true });
 }
 
-// Initialize empty data files if they don't exist
-initializeDataFiles();
+// Initialize sample data if files don't exist
+initializeSampleData();
 
 // ===============================
 // 🔧 Utility Functions
 // ===============================
-function initializeDataFiles() {
-    // Create empty teacher data file if it doesn't exist
-    if (!fs.existsSync(teacherDataPath)) {
-        fs.writeFileSync(teacherDataPath, JSON.stringify([], null, 2));
-        console.log('✅ Teacher data file created');
+function initializeSampleData() {
+    // Sample student data (for student system)
+    const studentData = [
+        { id: "S001", name: "Rahul Kumar", rollNo: "S001", class: "10A" },
+        { id: "S002", name: "Priya Sharma", rollNo: "S002", class: "10A" },
+        { id: "S003", name: "Amit Patel", rollNo: "S003", class: "10A" }
+    ];
+
+    // Sample result data
+    const resultData = {
+        student: { rollNo: "S001", name: "Rahul Kumar", class: "10A" },
+        marks: { tamil: 85, english: 78, maths: 92, science: 88, social: 80 },
+        total: 423,
+        average: 84.6,
+        grade: "A"
+    };
+
+    // Sample rank data
+    const rankData = [
+        { rank: 1, name: "Priya Sharma", rollNo: "S002", total: 450, average: 90.0, grade: "A+" },
+        { rank: 2, name: "Rahul Kumar", rollNo: "S001", total: 423, average: 84.6, grade: "A" },
+        { rank: 3, name: "Amit Patel", rollNo: "S003", total: 398, average: 79.6, grade: "B" }
+    ];
+
+    // Sample teacher data
+    const teacherData = [
+        {
+            id: "TCH-7284",
+            name: "Prof. Sarah Johnson",
+            subject: "Mathematics",
+            email: "sarah.johnson@school.edu",
+            class: "10A"
+        }
+    ];
+
+    // Sample student marks data for teacher
+    const studentMarksData = [
+        { id: "S001", name: "Rahul Kumar", rollNo: "S001", class: "10A", marks: { tamil: 85, english: 78, maths: 92, science: 88, social: 80 } },
+        { id: "S002", name: "Priya Sharma", rollNo: "S002", class: "10A", marks: { tamil: 90, english: 85, maths: 95, science: 92, social: 88 } },
+        { id: "S003", name: "Amit Patel", rollNo: "S003", class: "10A", marks: null },
+        { id: "S004", name: "Sneha Reddy", rollNo: "S004", class: "10A", marks: null },
+        { id: "S005", name: "Vikram Singh", rollNo: "S005", class: "10A", marks: { tamil: 75, english: 82, maths: 78, science: 80, social: 85 } },
+        { id: "S006", name: "Anjali Gupta", rollNo: "S006", class: "10A", marks: null },
+        { id: "S007", name: "Rajesh Kumar", rollNo: "S007", class: "10A", marks: { tamil: 88, english: 90, maths: 85, science: 87, social: 82 } },
+        { id: "S008", name: "Pooja Mehta", rollNo: "S008", class: "10A", marks: null },
+        { id: "S009", name: "Sanjay Verma", rollNo: "S009", class: "10A", marks: { tamil: 82, english: 78, maths: 85, science: 80, social: 79 } },
+        { id: "S010", name: "Neha Singh", rollNo: "S010", class: "10A", marks: null }
+    ];
+
+    // Write sample data if files don't exist
+    if (!fs.existsSync(studentDataPath)) {
+        fs.writeFileSync(studentDataPath, JSON.stringify(studentData, null, 2));
+        console.log('✅ Sample student data created');
     }
     
-    // Create empty student marks file if it doesn't exist
+    if (!fs.existsSync(resultDataPath)) {
+        fs.writeFileSync(resultDataPath, JSON.stringify(resultData, null, 2));
+        console.log('✅ Sample result data created');
+    }
+    
+    if (!fs.existsSync(rankDataPath)) {
+        fs.writeFileSync(rankDataPath, JSON.stringify(rankData, null, 2));
+        console.log('✅ Sample rank data created');
+    }
+    
+    if (!fs.existsSync(teacherDataPath)) {
+        fs.writeFileSync(teacherDataPath, JSON.stringify(teacherData, null, 2));
+        console.log('✅ Sample teacher data created');
+    }
+    
     if (!fs.existsSync(marksDataPath)) {
-        fs.writeFileSync(marksDataPath, JSON.stringify([], null, 2));
-        console.log('✅ Student marks file created');
+        fs.writeFileSync(marksDataPath, JSON.stringify(studentMarksData, null, 2));
+        console.log('✅ Sample student marks data created');
     }
 }
 
@@ -82,7 +154,79 @@ const writeJSONFile = (filePath, data) => {
 };
 
 // ===============================
-// 🎯 API Routes
+// 🎓 STUDENT API ROUTES
+// ===============================
+
+// ✅ Get student info (like Student Dashboard)
+app.get('/api/student/:id', (req, res) => {
+    const studentId = req.params.id;
+    
+    fs.readFile(studentDataPath, 'utf-8', (err, data) => {
+        if (err) {
+            console.error("❌ File read error:", err.message);
+            return res.status(500).json({ error: 'Error reading student data' });
+        }
+
+        try {
+            const students = JSON.parse(data);
+            const student = students.find(s => s.id === studentId);
+
+            if (!student) {
+                return res.status(404).json({ message: 'Student not found' });
+            }
+
+            res.json(student);
+        } catch (parseError) {
+            console.error("❌ JSON parse error:", parseError);
+            res.status(500).json({ error: 'Error parsing student data' });
+        }
+    });
+});
+
+// ✅ Get result data (like View Result page)
+app.get('/api/result/:id', (req, res) => {
+    const studentId = req.params.id;
+
+    fs.readFile(resultDataPath, 'utf-8', (err, data) => {
+        if (err) {
+            console.error("❌ Result file read error:", err.message);
+            return res.status(500).json({ error: 'Error reading result data' });
+        }
+
+        try {
+            const result = JSON.parse(data);
+            if (result.student.rollNo !== studentId) {
+                return res.status(404).json({ message: 'Result not found for this student' });
+            }
+
+            res.json(result);
+        } catch (parseError) {
+            console.error("❌ Result JSON parse error:", parseError);
+            res.status(500).json({ error: 'Error parsing result data' });
+        }
+    });
+});
+
+// ✅ Get ranking list (like View Rank page)
+app.get('/api/rankings', (req, res) => {
+    fs.readFile(rankDataPath, 'utf-8', (err, data) => {
+        if (err) {
+            console.error('Error reading ranking data:', err);
+            return res.status(500).json({ error: 'Error reading ranking data' });
+        }
+
+        try {
+            const rankings = JSON.parse(data);
+            res.json(rankings);
+        } catch (e) {
+            console.error('Invalid JSON format in rankData.json:', e);
+            res.status(500).json({ error: 'Invalid ranking data format' });
+        }
+    });
+});
+
+// ===============================
+// 👩‍🏫 TEACHER API ROUTES
 // ===============================
 
 // 👩‍🏫 Fetch Teacher Profile
@@ -99,39 +243,6 @@ app.get('/api/teacher/:id', async (req, res) => {
         res.json(teacher);
     } catch (error) {
         console.error('Error fetching teacher:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 👩‍🏫 Create/Update Teacher Profile
-app.post('/api/teacher', async (req, res) => {
-    try {
-        const teacherData = req.body;
-        
-        // Validate required fields
-        if (!teacherData.id || !teacherData.name || !teacherData.subject || !teacherData.email || !teacherData.class) {
-            return res.status(400).json({ error: 'All fields are required: id, name, subject, email, class' });
-        }
-
-        const teachers = await readJSONFile(teacherDataPath);
-        const existingTeacherIndex = teachers.findIndex(t => t.id === teacherData.id);
-        
-        if (existingTeacherIndex !== -1) {
-            // Update existing teacher
-            teachers[existingTeacherIndex] = { ...teachers[existingTeacherIndex], ...teacherData };
-        } else {
-            // Add new teacher
-            teachers.push(teacherData);
-        }
-        
-        await writeJSONFile(teacherDataPath, teachers);
-        
-        res.json({ 
-            message: existingTeacherIndex !== -1 ? 'Teacher profile updated successfully' : 'Teacher profile created successfully', 
-            teacher: teacherData 
-        });
-    } catch (error) {
-        console.error('Error saving teacher:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -159,82 +270,13 @@ app.put('/api/teacher/:id', async (req, res) => {
     }
 });
 
-// 🎓 Fetch All Students
+// 🎓 Fetch All Students (Teacher)
 app.get('/api/students', async (req, res) => {
     try {
         const students = await readJSONFile(marksDataPath);
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 🎓 Fetch Students by Class
-app.get('/api/students/class/:className', async (req, res) => {
-    try {
-        const className = req.params.className;
-        const students = await readJSONFile(marksDataPath);
-        const classStudents = students.filter(student => student.class === className);
-        
-        res.json(classStudents);
-    } catch (error) {
-        console.error('Error fetching class students:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 🎓 Fetch Single Student by ID
-app.get('/api/student/:id', async (req, res) => {
-    try {
-        const studentId = req.params.id;
-        const students = await readJSONFile(marksDataPath);
-        const student = students.find(s => s.id === studentId);
-        
-        if (!student) {
-            return res.status(404).json({ error: 'Student not found' });
-        }
-        
-        res.json(student);
-    } catch (error) {
-        console.error('Error fetching student:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 🎓 Add New Student
-app.post('/api/student', async (req, res) => {
-    try {
-        const studentData = req.body;
-
-        // Validate required fields
-        if (!studentData.id || !studentData.name || !studentData.rollNo || !studentData.class) {
-            return res.status(400).json({ error: 'All fields are required: id, name, rollNo, class' });
-        }
-
-        const students = await readJSONFile(marksDataPath);
-        
-        // Check if student already exists
-        const existingStudent = students.find(s => s.id === studentData.id || s.rollNo === studentData.rollNo);
-        if (existingStudent) {
-            return res.status(400).json({ error: 'Student with this ID or Roll No already exists' });
-        }
-
-        // Initialize with null marks
-        const newStudent = {
-            ...studentData,
-            marks: null
-        };
-
-        students.push(newStudent);
-        await writeJSONFile(marksDataPath, students);
-
-        res.json({ 
-            message: 'Student added successfully', 
-            student: newStudent 
-        });
-    } catch (error) {
-        console.error('Error adding student:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -280,59 +322,8 @@ app.post('/api/student/:id/marks', async (req, res) => {
     }
 });
 
-// ✏️ Bulk Update Marks for Multiple Students
-app.post('/api/students/marks/bulk', async (req, res) => {
-    try {
-        const { studentMarks } = req.body;
-
-        if (!Array.isArray(studentMarks)) {
-            return res.status(400).json({ error: 'Invalid data format. Expected array of student marks.' });
-        }
-
-        const students = await readJSONFile(marksDataPath);
-        let updatedCount = 0;
-
-        for (const item of studentMarks) {
-            const { studentId, marks } = item;
-            
-            if (!studentId || !marks) {
-                continue; // Skip invalid entries
-            }
-
-            const studentIndex = students.findIndex(s => s.id === studentId);
-            if (studentIndex !== -1) {
-                // Validate marks
-                const requiredSubjects = ['tamil', 'english', 'maths', 'science', 'social'];
-                let valid = true;
-                
-                for (const subject of requiredSubjects) {
-                    if (marks[subject] === undefined || marks[subject] === null || marks[subject] < 0 || marks[subject] > 100) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid) {
-                    students[studentIndex].marks = marks;
-                    updatedCount++;
-                }
-            }
-        }
-
-        await writeJSONFile(marksDataPath, students);
-
-        res.json({ 
-            message: `Marks updated for ${updatedCount} students successfully`,
-            updatedCount 
-        });
-    } catch (error) {
-        console.error('Error updating bulk marks:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 📊 Get Class Rankings
-app.get('/api/rankings', async (req, res) => {
+// 📊 Get Class Rankings (Teacher)
+app.get('/api/rankings-teacher', async (req, res) => {
     try {
         const students = await readJSONFile(marksDataPath);
         
@@ -357,37 +348,6 @@ app.get('/api/rankings', async (req, res) => {
         res.json(rankings);
     } catch (error) {
         console.error('Error fetching rankings:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 📊 Get Class Rankings by Class
-app.get('/api/rankings/class/:className', async (req, res) => {
-    try {
-        const className = req.params.className;
-        const students = await readJSONFile(marksDataPath);
-        
-        // Process rankings for specific class
-        const rankings = students
-            .filter(student => student.marks !== null && student.class === className)
-            .map(student => {
-                const marks = student.marks;
-                const total = Object.values(marks).reduce((sum, mark) => sum + mark, 0);
-                const average = (total / (Object.keys(marks).length * 100)) * 100;
-                const grade = calculateGrade(average);
-                
-                return {
-                    ...student,
-                    total,
-                    average: Math.round(average * 10) / 10,
-                    grade
-                };
-            })
-            .sort((a, b) => b.total - a.total);
-        
-        res.json(rankings);
-    } catch (error) {
-        console.error('Error fetching class rankings:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -429,49 +389,6 @@ app.get('/api/statistics', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching statistics:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// 📈 Get Class Statistics by Class
-app.get('/api/statistics/class/:className', async (req, res) => {
-    try {
-        const className = req.params.className;
-        const students = await readJSONFile(marksDataPath);
-        const classStudents = students.filter(student => student.class === className);
-        const studentsWithMarks = classStudents.filter(student => student.marks !== null);
-        
-        if (studentsWithMarks.length === 0) {
-            return res.json({
-                totalStudents: classStudents.length,
-                studentsWithMarks: 0,
-                classAverage: 0,
-                topScore: 0,
-                passPercentage: 0
-            });
-        }
-        
-        // Calculate statistics for specific class
-        const totals = studentsWithMarks.map(student => 
-            Object.values(student.marks).reduce((sum, mark) => sum + mark, 0)
-        );
-        
-        const classAverage = totals.reduce((sum, total) => sum + total, 0) / totals.length;
-        const topScore = Math.max(...totals);
-        const passPercentage = (studentsWithMarks.filter(student => {
-            const average = Object.values(student.marks).reduce((sum, mark) => sum + mark, 0) / Object.keys(student.marks).length;
-            return average >= 40;
-        }).length / studentsWithMarks.length) * 100;
-        
-        res.json({
-            totalStudents: classStudents.length,
-            studentsWithMarks: studentsWithMarks.length,
-            classAverage: Math.round(classAverage),
-            topScore: topScore,
-            passPercentage: Math.round(passPercentage)
-        });
-    } catch (error) {
-        console.error('Error fetching class statistics:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -540,32 +457,25 @@ function calculateGrade(average) {
 }
 
 // ===============================
-// 🏠 Serve HTML Pages - FIXED ROUTES
+// 🏠 SERVE HTML PAGES
 // ===============================
 
-// Serve Teacher Dashboard
+// ✅ Student Routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/templates/student/Student_DashBoard.html'));
+});
+
+// ✅ Teacher Routes
 app.get('/teacher/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/Teacher_DashBoard.html'));
 });
 
-// Serve Marks Entry Page
 app.get('/teacher/marks', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/mark_entry.html'));
 });
 
-// Serve Rankings Page
 app.get('/teacher/rankings', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_rank.html'));
-});
-
-// Serve Student Management Page
-app.get('/teacher/students', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/student_management.html'));
-});
-
-// Root route - redirect to dashboard
-app.get('/', (req, res) => {
-    res.redirect('/teacher/dashboard');
 });
 
 // Handle 404 - Page not found
@@ -576,7 +486,7 @@ app.use((req, res) => {
             <body>
                 <h1>404 - Page Not Found</h1>
                 <p>The page you are looking for does not exist.</p>
-                <p><a href="/teacher/dashboard">Go to Dashboard</a></p>
+                <p><a href="/">Go to Student Dashboard</a> | <a href="/teacher/dashboard">Go to Teacher Dashboard</a></p>
             </body>
         </html>
     `);
@@ -585,22 +495,23 @@ app.use((req, res) => {
 // ===============================
 // 🚀 Start Server
 // ===============================
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`\n✅ Teacher Server running on http://localhost:${PORT}`);
-    console.log(`\n📚 Available Pages:`);
+    console.log(`\n✅ Consolidated Student & Teacher Server running on http://localhost:${PORT}`);
+    console.log(`\n🎓 Student Pages:`);
+    console.log(`   📊 Dashboard: http://localhost:${PORT}/`);
+    console.log(`\n👩‍🏫 Teacher Pages:`);
     console.log(`   📊 Dashboard: http://localhost:${PORT}/teacher/dashboard`);
     console.log(`   ✏️  Marks Entry: http://localhost:${PORT}/teacher/marks`);
     console.log(`   🏆 Rankings: http://localhost:${PORT}/teacher/rankings`);
-    console.log(`   👨‍🎓 Student Management: http://localhost:${PORT}/teacher/students`);
     console.log(`\n🔗 API Endpoints:`);
-    console.log(`   👩‍🏫 GET/POST/PUT /api/teacher/:id`);
-    console.log(`   👨‍🎓 GET/POST     /api/student/:id`);
-    console.log(`   📝 POST        /api/student/:id/marks`);
-    console.log(`   📝 POST        /api/students/marks/bulk`);
-    console.log(`   📈 GET         /api/rankings`);
-    console.log(`   📊 GET         /api/statistics`);
-    console.log(`   📤 GET         /api/export/rankings`);
-    console.log(`\n🌐 Live Server Access:`);
-    console.log(`   Use Live Server on port 5500 with API calls to port 5001`);
+    console.log(`   👨‍🎓 GET  /api/student/:id`);
+    console.log(`   📝 GET  /api/result/:id`);
+    console.log(`   🏅 GET  /api/rankings`);
+    console.log(`\n🔗 Teacher API Endpoints:`);
+    console.log(`   👩‍🏫 GET  /api/teacher/:id`);
+    console.log(`   📝 POST /api/student/:id/marks`);
+    console.log(`   📈 GET  /api/rankings-teacher`);
+    console.log(`   📊 GET  /api/statistics`);
+    console.log(`   📤 GET  /api/export/rankings`);
 });
