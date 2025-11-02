@@ -1,9 +1,7 @@
 🎓 Student Grade Calculator
 📘 Project Overview
 
-The Student Grade Calculator is a web-based application designed to simplify and automate the process of managing student grades. 
-It provides role-based access for Teachers and Students, ensuring that both users can efficiently perform their respective tasks in an organized and user-friendly interface.
-The system eliminates manual grade calculations by automatically generating grades based on the marks entered by teachers. 
+The Student Grade Calculator is a web-based application designed to simplify and automate the process of managing student grades. It provides role-based access for Teachers and Students, ensuring that both users can efficiently perform their respective tasks in an organized and user-friendly interface.The system eliminates manual grade calculations by automatically generating grades based on the marks entered by teachers. 
 It also offers additional features such as voice-based mark entry, result publication, and ranking visualization for enhanced usability and efficiency.
 
 
