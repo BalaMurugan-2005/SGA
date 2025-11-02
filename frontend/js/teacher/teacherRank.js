@@ -97,45 +97,7 @@ async function loadRankings() {
     }
 }
 
-function loadDemoRankings() {
-    // Demo data fallback
-    const publishedResults = [
-        { id: "S001", name: "Rahul Kumar", rollNo: "S001", class: "10A", marks: { tamil: 85, english: 78, maths: 92, science: 88, social: 80 } },
-        { id: "S002", name: "Priya Sharma", rollNo: "S002", class: "10A", marks: { tamil: 90, english: 85, maths: 95, science: 92, social: 88 } },
-        { id: "S003", name: "Amit Patel", rollNo: "S003", class: "10A", marks: { tamil: 78, english: 82, maths: 88, science: 85, social: 79 } },
-        { id: "S004", name: "Sneha Reddy", rollNo: "S004", class: "10A", marks: { tamil: 92, english: 88, maths: 94, science: 90, social: 86 } },
-        { id: "S005", name: "Vikram Singh", rollNo: "S005", class: "10A", marks: { tamil: 75, english: 82, maths: 78, science: 80, social: 85 } },
-        { id: "S006", name: "Anjali Gupta", rollNo: "S006", class: "10A", marks: { tamil: 88, english: 90, maths: 85, science: 87, social: 82 } },
-        { id: "S007", name: "Rajesh Kumar", rollNo: "S007", class: "10A", marks: { tamil: 82, english: 85, maths: 90, science: 88, social: 84 } },
-        { id: "S008", name: "Pooja Mehta", rollNo: "S008", class: "10A", marks: { tamil: 79, english: 81, maths: 76, science: 78, social: 80 } },
-        { id: "S009", name: "Sanjay Verma", rollNo: "S009", class: "10A", marks: { tamil: 82, english: 78, maths: 85, science: 80, social: 79 } },
-        { id: "S010", name: "Neha Singh", rollNo: "S010", class: "10A", marks: { tamil: 95, english: 92, maths: 98, science: 96, social: 94 } }
-    ];
 
-    // Process student data
-    const processedStudents = publishedResults.map(student => {
-        const marks = student.marks;
-        const total = Object.values(marks).reduce((sum, mark) => sum + mark, 0);
-        const average = (total / (Object.keys(marks).length * 100)) * 100;
-        const grade = calculateGrade(average);
-        
-        return {
-            ...student,
-            total,
-            average: Math.round(average * 10) / 10, // Round to 1 decimal
-            grade
-        };
-    });
-    
-    // Sort by total marks (descending)
-    processedStudents.sort((a, b) => b.total - a.total);
-    
-    // Update stats manually for demo data
-    updateDemoStats(processedStudents);
-    
-    // Display rankings
-    displayRankings(processedStudents);
-}
 
 function updateStats(statistics) {
     totalStudents.textContent = statistics.totalStudents;
