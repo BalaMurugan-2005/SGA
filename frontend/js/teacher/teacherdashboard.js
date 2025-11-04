@@ -89,6 +89,11 @@ async function checkAuthentication() {
         }
         
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Authentication check failed');
+        }
+        
         const authData = await response.json();
         
         if (!authData.authenticated) {
@@ -168,41 +173,79 @@ async function loadTeacherData() {
         const session = JSON.parse(currentSession);
         const teacherId = session.user.id;
 
+        console.log('Fetching teacher data for ID:', teacherId);
+
         const response = await fetch(`${API_BASE_URL}/api/teacher/${teacherId}`);
-        if (!response.ok) throw new Error('Failed to fetch teacher data');
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to fetch teacher data: ${response.status} ${errorText}`);
+        }
 
         const teacher = await response.json();
 
+        console.log('Teacher data received:', teacher);
+
         // ✅ Display teacher details in dashboard
-        document.querySelector('.teacher-details').innerHTML = `
-            <div class="detail-item">
-                <span class="detail-label">Teacher Name:</span>
-                <span class="detail-value">${teacher.name}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Teacher ID:</span>
-                <span class="detail-value">${teacher.id}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Subject:</span>
-                <span class="detail-value">${teacher.subject}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">${teacher.email}</span>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Class:</span>
-                <span class="detail-value">${teacher.class}</span>
-            </div>
-        `;
+        const teacherDetailsContainer = document.querySelector('.teacher-details');
+        
+        if (teacherDetailsContainer) {
+            teacherDetailsContainer.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">Teacher Name:</span>
+                    <span class="detail-value">${teacher.name || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Teacher ID:</span>
+                    <span class="detail-value">${teacher.id || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${teacher.email || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value">${teacher.username || 'N/A'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value status-active">Active</span>
+                </div>
+            `;
+        } else {
+            console.error('Teacher details container not found');
+        }
+        
     } catch (error) {
         console.error('Error loading teacher data:', error);
-        document.querySelector('.teacher-details').innerHTML = `
+        const teacherDetailsContainer = document.querySelector('.teacher-details');
+        
+        if (teacherDetailsContainer) {
+            teacherDetailsContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading teacher data: ${error.message}</p>
+                    <p>Please check if the server is running on ${API_BASE_URL}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Add some basic error handling for network issues
+window.addEventListener('online', function() {
+    console.log('Network connection restored');
+});
+
+window.addEventListener('offline', function() {
+    console.log('Network connection lost');
+    const teacherDetailsContainer = document.querySelector('.teacher-details');
+    if (teacherDetailsContainer) {
+        teacherDetailsContainer.innerHTML = `
             <div class="error-message">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Error loading teacher data. Please try again.</p>
+                <i class="fas fa-wifi"></i>
+                <p>Network connection lost. Please check your internet connection.</p>
             </div>
         `;
     }
-}
+});

@@ -20,8 +20,53 @@ let rankingsData = [];
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+    // Check authentication first
+    checkAuthentication();
 });
+
+// ✅ Authentication Functions
+async function checkAuthentication() {
+    const currentSession = localStorage.getItem('currentSession');
+    
+    if (!currentSession) {
+        redirectToLogin();
+        return;
+    }
+    
+    try {
+        const session = JSON.parse(currentSession);
+        if (session.userType !== 'teacher') {
+            redirectToLogin();
+            return;
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Authentication check failed');
+        }
+        
+        const authData = await response.json();
+        
+        if (!authData.authenticated) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Initialize app after successful authentication
+        initializeApp();
+        
+    } catch (error) {
+        console.error('Auth check error:', error);
+        redirectToLogin();
+    }
+}
+
+function redirectToLogin() {
+    localStorage.removeItem('currentSession');
+    sessionStorage.removeItem('isAuthenticated');
+    window.location.href = '/frontend/templates/login.html';
+}
 
 function initializeApp() {
     setupNavigation();
@@ -30,61 +75,94 @@ function initializeApp() {
 }
 
 function setupNavigation() {
-    hamburger.addEventListener('click', function() {
-        sidebar.classList.toggle('active');
-        mainContent.classList.toggle('sidebar-open');
-        
-        const icon = hamburger.querySelector('i');
-        if (sidebar.classList.contains('active')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
-        } else {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
-    });
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-open');
+            
+            const icon = hamburger.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
     
-    profile.addEventListener('click', function() {
-        profileDropdown.classList.toggle('active');
-    });
+    if (profile) {
+        profile.addEventListener('click', function() {
+            profileDropdown.classList.toggle('active');
+        });
+    }
     
     document.addEventListener('click', function(event) {
-        if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
+        if (profile && !profile.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
             profileDropdown.classList.remove('active');
         }
     });
     
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function(e) {
+            // Handle logout link separately
+            if (this.getAttribute('href') === 'login.html' || 
+                this.querySelector('.fa-sign-out-alt')) {
+                e.preventDefault();
+                handleLogout();
+                return;
+            }
+            
             if (window.innerWidth < 992) {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-open');
-                hamburger.querySelector('i').classList.remove('fa-times');
-                hamburger.querySelector('i').classList.add('fa-bars');
+                if (hamburger) {
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
             }
         });
     });
 }
 
+async function handleLogout() {
+    try {
+        await fetch(`${API_BASE_URL}/api/logout`, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Logout API error:', error);
+    } finally {
+        localStorage.removeItem('currentSession');
+        sessionStorage.removeItem('isAuthenticated');
+        window.location.href = '/frontend/templates/login.html';
+    }
+}
+
 async function loadRankings() {
     try {
-        // Load rankings from API - BOTH use same /api/rankings endpoint
-        const [rankingsResponse, statsResponse] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/rankings`),
-            fetch(`${API_BASE_URL}/api/statistics`)
-        ]);
-
-        if (!rankingsResponse.ok || !statsResponse.ok) {
-            throw new Error('Failed to load data');
+        console.log('Loading rankings data...');
+        
+        // Load rankings and statistics from API
+        const rankingsResponse = await fetch(`${API_BASE_URL}/api/rankings`);
+        
+        if (!rankingsResponse.ok) {
+            throw new Error(`Failed to load rankings: ${rankingsResponse.status}`);
         }
 
         const rankData = await rankingsResponse.json();
-        const statistics = await statsResponse.json();
+        console.log('Rankings data received:', rankData);
 
         // Extract rankings array from the response
-        rankingsData = rankData.rankings;
-
+        rankingsData = rankData.rankings || [];
+        
+        // Calculate statistics from the rankings data
+        const statistics = calculateStatistics(rankingsData);
+        
         // Update stats
         updateStats(statistics);
         
@@ -93,48 +171,85 @@ async function loadRankings() {
         
     } catch (error) {
         console.error('Error loading rankings:', error);
-        showNotification('Failed to load rankings data', 'danger');
+        showNotification(`Failed to load rankings data: ${error.message}`, 'danger');
         
-        // Fallback: Use demo data if API fails
-        loadDemoRankings();
+        // Show error in table
+        if (rankingBody) {
+            rankingBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error Loading Data</h3>
+                            <p>${error.message}</p>
+                            <p>Please check if the server is running on ${API_BASE_URL}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 
-function updateStats(statistics) {
-    totalStudents.textContent = statistics.totalStudents;
-    classAverage.textContent = `${statistics.classAverage}%`;
-    topScore.textContent = statistics.topScore;
-    passPercentage.textContent = `${statistics.passPercentage}%`;
+function calculateStatistics(students) {
+    if (!students || students.length === 0) {
+        return {
+            totalStudents: 0,
+            classAverage: 0,
+            topScore: 0,
+            passPercentage: 0
+        };
+    }
+    
+    // Filter only marked students with valid marks
+    const markedStudents = students.filter(student => 
+        student.isMarked && student.totalMarks !== null && student.totalMarks !== undefined
+    );
+    
+    if (markedStudents.length === 0) {
+        return {
+            totalStudents: students.length,
+            classAverage: 0,
+            topScore: 0,
+            passPercentage: 0
+        };
+    }
+    
+    // Calculate statistics
+    const totalMarked = markedStudents.length;
+    const totalPercentage = markedStudents.reduce((sum, student) => sum + (student.percentage || 0), 0);
+    const classAverage = totalPercentage / totalMarked;
+    const topScore = Math.max(...markedStudents.map(student => student.totalMarks || 0));
+    const passedStudents = markedStudents.filter(student => student.status === 'Pass').length;
+    const passPercentage = (passedStudents / totalMarked) * 100;
+    
+    return {
+        totalStudents: students.length,
+        classAverage: Math.round(classAverage * 10) / 10,
+        topScore: topScore,
+        passPercentage: Math.round(passPercentage)
+    };
 }
 
-function updateDemoStats(students) {
-    // Total students
-    totalStudents.textContent = students.length;
-    
-    // Class average
-    const classAvg = students.reduce((sum, student) => sum + student.percentage, 0) / students.length;
-    classAverage.textContent = `${Math.round(classAvg)}%`;
-    
-    // Top score
-    const topStudent = students[0];
-    topScore.textContent = topStudent ? topStudent.totalMarks : '0';
-    
-    // Pass percentage (assuming 40% is passing)
-    const passedStudents = students.filter(student => student.percentage >= 40);
-    const passPercent = (passedStudents.length / students.length) * 100;
-    passPercentage.textContent = `${Math.round(passPercent)}%`;
+function updateStats(statistics) {
+    if (totalStudents) totalStudents.textContent = statistics.totalStudents;
+    if (classAverage) classAverage.textContent = `${statistics.classAverage}%`;
+    if (topScore) topScore.textContent = statistics.topScore;
+    if (passPercentage) passPercentage.textContent = `${statistics.passPercentage}%`;
 }
 
 function displayRankings(students) {
+    if (!rankingBody) return;
+    
     rankingBody.innerHTML = '';
     
-    if (students.length === 0) {
+    if (!students || students.length === 0) {
         rankingBody.innerHTML = `
             <tr>
                 <td colspan="5">
                     <div class="empty-state">
                         <i class="fas fa-trophy"></i>
-                        <h3>No Results Found</h3>
+                        <h3>No Rankings Available</h3>
                         <p>No student rankings available for display.</p>
                     </div>
                 </td>
@@ -143,8 +258,29 @@ function displayRankings(students) {
         return;
     }
     
-    students.forEach((student) => {
+    // Filter only marked students and sort by rank
+    const markedStudents = students
+        .filter(student => student.isMarked && student.rank)
+        .sort((a, b) => (a.rank || 999) - (b.rank || 999));
+    
+    if (markedStudents.length === 0) {
+        rankingBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="empty-state">
+                        <i class="fas fa-edit"></i>
+                        <h3>No Marks Entered</h3>
+                        <p>No students have marks entered yet. Please enter marks first.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    markedStudents.forEach((student) => {
         const row = document.createElement('tr');
+        row.className = 'rank-row';
         
         // Add medal for top 3 ranks
         let rankDisplay = `<span class="rank-cell">${student.rank}</span>`;
@@ -160,16 +296,16 @@ function displayRankings(students) {
             <td>${rankDisplay}</td>
             <td>
                 <div class="student-info">
-                    <div class="avatar">${student.name.charAt(0)}</div>
+                    <div class="avatar">${student.name ? student.name.charAt(0).toUpperCase() : '?'}</div>
                     <div class="student-details">
-                        <div class="student-name">${student.name}</div>
-                        <div class="student-roll">${student.rollNo}</div>
+                        <div class="student-name">${student.name || 'Unknown'}</div>
+                        <div class="student-roll">${student.rollNo || 'N/A'}</div>
                     </div>
                 </div>
             </td>
-            <td class="marks-cell">${student.totalMarks}/500</td>
-            <td class="average-cell">${student.percentage}%</td>
-            <td><span class="grade-badge ${getGradeClass(student.grade)}">${student.grade}</span></td>
+            <td class="marks-cell">${student.totalMarks || 0}/500</td>
+            <td class="average-cell">${student.percentage || 0}%</td>
+            <td><span class="grade-badge ${getGradeClass(student.grade)}">${student.grade || 'N/A'}</span></td>
         `;
         
         rankingBody.appendChild(row);
@@ -177,40 +313,50 @@ function displayRankings(students) {
 }
 
 function getGradeClass(grade) {
-    switch(grade) {
+    if (!grade) return 'grade-unknown';
+    
+    switch(grade.toUpperCase()) {
         case 'A+': return 'grade-a-plus';
         case 'A': return 'grade-a';
+        case 'B+': return 'grade-b-plus';
         case 'B': return 'grade-b';
+        case 'C+': return 'grade-c-plus';
         case 'C': return 'grade-c';
         case 'D': return 'grade-d';
         case 'F': return 'grade-f';
-        default: return 'grade-c';
+        default: return 'grade-unknown';
     }
 }
 
 function setupEventListeners() {
     // Search functionality
-    searchInput.addEventListener('input', function() {
-        filterRankings(this.value);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterRankings(this.value);
+        });
+    }
     
     // Refresh button
-    refreshBtn.addEventListener('click', function() {
-        const originalText = refreshBtn.innerHTML;
-        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-        refreshBtn.disabled = true;
-        
-        loadRankings().finally(() => {
-            refreshBtn.innerHTML = originalText;
-            refreshBtn.disabled = false;
-            showNotification('Rankings updated successfully!', 'success');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            loadRankings().finally(() => {
+                refreshBtn.innerHTML = originalText;
+                refreshBtn.disabled = false;
+                showNotification('Rankings updated successfully!', 'success');
+            });
         });
-    });
+    }
     
     // Export button
-    exportBtn.addEventListener('click', function() {
-        exportToCSV();
-    });
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportToCSV();
+        });
+    }
 }
 
 function filterRankings(searchTerm) {
@@ -221,8 +367,8 @@ function filterRankings(searchTerm) {
     }
     
     const filteredStudents = rankingsData.filter(student => 
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
+        student.name && student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.rollNo && student.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
     );
     
     displayRankings(filteredStudents);
@@ -230,75 +376,72 @@ function filterRankings(searchTerm) {
 
 async function exportToCSV() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/export/rankings`);
-        if (!response.ok) throw new Error('Export failed');
+        // Filter only marked students for export
+        const markedStudents = rankingsData.filter(student => student.isMarked && student.rank);
         
-        const blob = await response.blob();
+        if (markedStudents.length === 0) {
+            showNotification('No data available to export', 'warning');
+            return;
+        }
+        
+        // Create CSV content from current rankings data
+        let csvContent = "Rank,Student Name,Roll No,Class,Section,Total Marks,Percentage,Grade,Status\n";
+        
+        markedStudents.forEach((student) => {
+            const row = [
+                student.rank,
+                `"${student.name || 'Unknown'}"`,
+                student.rollNo || 'N/A',
+                student.class || 'N/A',
+                student.section || 'N/A',
+                student.totalMarks || 0,
+                student.percentage || 0,
+                student.grade || 'N/A',
+                student.status || 'N/A'
+            ];
+            csvContent += row.join(',') + '\n';
+        });
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.setAttribute('hidden', '');
         a.setAttribute('href', url);
-        a.setAttribute('download', 'class_rankings.csv');
+        a.setAttribute('download', `class_rankings_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
         
         showNotification('Rankings exported successfully!', 'success');
     } catch (error) {
         console.error('Export error:', error);
-        showNotification('Failed to export rankings. Using client-side export.', 'warning');
-        
-        // Fallback: Client-side export
-        exportToCSVClientSide();
+        showNotification('Failed to export rankings', 'danger');
     }
 }
 
-function exportToCSVClientSide() {
-    // Create CSV content from current rankings data
-    let csvContent = "Rank,Student Name,Roll No,Total Marks,Percentage,Grade\n";
-    
-    rankingsData.forEach((student) => {
-        const row = [
-            student.rank,
-            `"${student.name}"`,
-            student.rollNo,
-            student.totalMarks,
-            student.percentage,
-            student.grade
-        ];
-        csvContent += row.join(',') + '\n';
-    });
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'class_rankings.csv');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    showNotification('Rankings exported successfully!', 'success');
-}
-
 function showNotification(message, type) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.custom-notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
     // Create notification element
     const notification = document.createElement('div');
-    notification.className = `alert alert-${type}`;
+    notification.className = `custom-notification alert-${type}`;
     notification.style.cssText = `
         position: fixed;
         top: 100px;
         right: 30px;
         z-index: 10000;
         max-width: 300px;
-        padding: 15px;
+        padding: 15px 20px;
         border-radius: 8px;
         color: white;
         font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideInRight 0.3s ease-out;
+        font-family: 'Poppins', sans-serif;
     `;
     
     // Set background color based on type
@@ -309,6 +452,8 @@ function showNotification(message, type) {
     } else if (type === 'warning') {
         notification.style.backgroundColor = '#ffc107';
         notification.style.color = '#212529';
+    } else {
+        notification.style.backgroundColor = '#17a2b8';
     }
     
     notification.innerHTML = `
@@ -318,31 +463,55 @@ function showNotification(message, type) {
     
     document.body.appendChild(notification);
     
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
+    // Add CSS animation if not already added
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
             }
-        }
-    `;
-    document.head.appendChild(style);
+        `;
+        document.head.appendChild(style);
+    }
     
-    // Remove notification after 3 seconds
+    // Remove notification after 4 seconds
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.animation = 'slideIn 0.3s ease-out reverse';
+            notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
                 }
             }, 300);
         }
-    }, 3000);
+    }, 4000);
 }
+
+// Add network status monitoring
+window.addEventListener('online', function() {
+    console.log('Network connection restored');
+    showNotification('Network connection restored', 'success');
+});
+
+window.addEventListener('offline', function() {
+    console.log('Network connection lost');
+    showNotification('Network connection lost', 'warning');
+});

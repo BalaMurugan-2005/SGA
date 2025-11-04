@@ -2,13 +2,36 @@
   {
     "id": "TCH-7284",
     "name": "Prof. Sarah Johnson",
-    "subject": "Mathematics",
-    "email": "sarah.johnson@grademaster.edu"
+    "email": "sarah.johnson@grademaster.edu",
+    "username": "sarah_johnson",
+    "password": "Sarah@7284"
   },
   {
     "id": "TCH-7285",
     "name": "Mr. David Lee",
-    "subject": "Science",
-    "email": "david.lee@grademaster.edu"
+    "email": "david.lee@grademaster.edu",
+    "username": "david_lee",
+    "password": "David#7285"
+  },
+  {
+    "id": "TCH-7286",
+    "name": "Ms. Priya Natarajan",
+    "email": "priya.natarajan@grademaster.edu",
+    "username": "priya_natarajan",
+    "password": "Priya@7286"
+  },
+  {
+    "id": "TCH-7287",
+    "name": "Mr. Arjun Patel",
+    "email": "arjun.patel@grademaster.edu",
+    "username": "arjun_patel",
+    "password": "Arjun#7287"
+  },
+  {
+    "id": "TCH-7288",
+    "name": "Mrs. Kavitha Raj",
+    "email": "kavitha.raj@grademaster.edu",
+    "username": "kavitha_raj",
+    "password": "Kavitha@7288"
   }
 ]

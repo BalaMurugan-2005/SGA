@@ -35,8 +35,53 @@ const subjectFields = ['tamil', 'english', 'maths', 'science', 'social'];
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+    // Check authentication first
+    checkAuthentication();
 });
+
+// ✅ Authentication Functions
+async function checkAuthentication() {
+    const currentSession = localStorage.getItem('currentSession');
+    
+    if (!currentSession) {
+        redirectToLogin();
+        return;
+    }
+    
+    try {
+        const session = JSON.parse(currentSession);
+        if (session.userType !== 'teacher') {
+            redirectToLogin();
+            return;
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Authentication check failed');
+        }
+        
+        const authData = await response.json();
+        
+        if (!authData.authenticated) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Initialize app after successful authentication
+        initializeApp();
+        
+    } catch (error) {
+        console.error('Auth check error:', error);
+        redirectToLogin();
+    }
+}
+
+function redirectToLogin() {
+    localStorage.removeItem('currentSession');
+    sessionStorage.removeItem('isAuthenticated');
+    window.location.href = '/frontend/templates/login.html';
+}
 
 async function initializeApp() {
     // Setup navigation
@@ -58,15 +103,30 @@ async function initializeApp() {
 // Updated API integration functions
 async function loadStudentsFromAPI() {
     try {
-        showAlert('Loading student data...', 'success');
+        showAlert('Loading student data...', 'info');
         const response = await fetch(`${API_BASE_URL}/api/students`);
-        if (!response.ok) throw new Error('Failed to fetch students');
-        studentsData = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch students: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Handle both array format and object with students array
+        if (Array.isArray(data)) {
+            studentsData = data;
+        } else if (data.students && Array.isArray(data.students)) {
+            studentsData = data.students;
+        } else {
+            studentsData = [];
+        }
+        
+        console.log('Loaded students data:', studentsData);
         loadStudents();
         showAlert('Student data loaded successfully', 'success');
     } catch (error) {
         console.error('Error loading students:', error);
-        showAlert('Failed to load student data', 'danger');
+        showAlert(`Failed to load student data: ${error.message}`, 'danger');
         studentsData = [];
         loadStudents();
     }
@@ -84,7 +144,7 @@ async function submitMarksToAPI(studentId, marks) {
         
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to save marks');
+            throw new Error(errorData.error || `Failed to save marks: ${response.status}`);
         }
         
         const result = await response.json();
@@ -95,47 +155,35 @@ async function submitMarksToAPI(studentId, marks) {
     }
 }
 
-// Demo data fallback (kept for reference but not used in new implementation)
-function getDemoStudents() {
-    return [
-        { id: "S001", name: "Rahul Kumar", rollNo: "S001", class: "10A", marks: { tamil: 85, english: 78, maths: 92, science: 88, social: 80 } },
-        { id: "S002", name: "Priya Sharma", rollNo: "S002", class: "10A", marks: { tamil: 90, english: 85, maths: 95, science: 92, social: 88 } },
-        { id: "S003", name: "Amit Patel", rollNo: "S003", class: "10A", marks: null },
-        { id: "S004", name: "Sneha Reddy", rollNo: "S004", class: "10A", marks: null },
-        { id: "S005", name: "Vikram Singh", rollNo: "S005", class: "10A", marks: { tamil: 75, english: 82, maths: 78, science: 80, social: 85 } },
-        { id: "S006", name: "Anjali Gupta", rollNo: "S006", class: "10A", marks: null },
-        { id: "S007", name: "Rajesh Kumar", rollNo: "S007", class: "10A", marks: { tamil: 88, english: 90, maths: 85, science: 87, social: 82 } },
-        { id: "S008", name: "Pooja Mehta", rollNo: "S008", class: "10A", marks: null },
-        { id: "S009", name: "Sanjay Verma", rollNo: "S009", class: "10A", marks: { tamil: 82, english: 78, maths: 85, science: 80, social: 79 } },
-        { id: "S010", name: "Neha Singh", rollNo: "S010", class: "10A", marks: null }
-    ];
-}
-
 function setupNavigation() {
     // Toggle sidebar
-    hamburger.addEventListener('click', function() {
-        sidebar.classList.toggle('active');
-        mainContent.classList.toggle('sidebar-open');
-        
-        // Change hamburger icon
-        const icon = hamburger.querySelector('i');
-        if (sidebar.classList.contains('active')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
-        } else {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
-    });
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-open');
+            
+            // Change hamburger icon
+            const icon = hamburger.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
     
     // Toggle profile dropdown
-    profile.addEventListener('click', function() {
-        profileDropdown.classList.toggle('active');
-    });
+    if (profile) {
+        profile.addEventListener('click', function() {
+            profileDropdown.classList.toggle('active');
+        });
+    }
     
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
-        if (!profile.contains(event.target) && !profileDropdown.contains(event.target)) {
+        if (profile && !profile.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
             profileDropdown.classList.remove('active');
         }
     });
@@ -143,15 +191,42 @@ function setupNavigation() {
     // Close sidebar when clicking on a link (for mobile)
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function(e) {
+            // Handle logout link separately
+            if (this.getAttribute('href') === 'login.html' || 
+                this.querySelector('.fa-sign-out-alt')) {
+                e.preventDefault();
+                handleLogout();
+                return;
+            }
+            
             if (window.innerWidth < 992) {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-open');
-                hamburger.querySelector('i').classList.remove('fa-times');
-                hamburger.querySelector('i').classList.add('fa-bars');
+                if (hamburger) {
+                    hamburger.querySelector('i').classList.remove('fa-times');
+                    hamburger.querySelector('i').classList.add('fa-bars');
+                }
             }
         });
     });
+}
+
+async function handleLogout() {
+    try {
+        await fetch(`${API_BASE_URL}/api/logout`, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Logout API error:', error);
+    } finally {
+        localStorage.removeItem('currentSession');
+        sessionStorage.removeItem('isAuthenticated');
+        window.location.href = '/frontend/templates/login.html';
+    }
 }
 
 function setupTabs() {
@@ -175,6 +250,8 @@ function setupTabs() {
 }
 
 function loadStudents() {
+    if (!studentsContainer) return;
+    
     studentsContainer.innerHTML = '';
     
     if (studentsData.length === 0) {
@@ -192,9 +269,9 @@ function loadStudents() {
         return;
     }
     
-    // Separate marked and unmarked students
-    const markedStudents = studentsData.filter(student => student.marks !== null);
-    const unmarkedStudents = studentsData.filter(student => student.marks === null);
+    // Separate marked and unmarked students based on isMarked field
+    const markedStudents = studentsData.filter(student => student.isMarked === true);
+    const unmarkedStudents = studentsData.filter(student => student.isMarked === false || !student.isMarked);
     
     // Display unmarked students section first
     if (unmarkedStudents.length > 0) {
@@ -231,13 +308,16 @@ function createStudentSection(type, title, students, icon, color) {
 }
 
 function createStudentCard(student, isMarked) {
+    const firstName = student.name ? student.name.split(' ')[0] : 'Unknown';
+    const avatarText = student.name ? student.name.charAt(0).toUpperCase() : '?';
+    
     return `
         <div class="student-card" data-id="${student.id}">
-            <div class="student-avatar">${student.name.charAt(0)}</div>
+            <div class="student-avatar">${avatarText}</div>
             <div class="student-info">
-                <div class="student-name">${student.name}</div>
+                <div class="student-name">${student.name || 'Unknown Student'}</div>
                 <div class="student-details">
-                    Roll No: ${student.rollNo} | Class: ${student.class}
+                    Roll No: ${student.rollNo || 'N/A'} | Class: ${student.class || 'N/A'}${student.section ? ' | Section: ' + student.section : ''}
                 </div>
             </div>
             <div class="student-status ${isMarked ? 'status-marked' : 'status-unmarked'}">
@@ -249,69 +329,93 @@ function createStudentCard(student, isMarked) {
 
 function setupFormHandlers() {
     // Form submission
-    marksForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        if (!selectedStudent) {
-            showAlert('Please select a student first', 'danger');
-            return;
-        }
-        
-        // Get form data
-        const formData = new FormData(marksForm);
-        const marks = {
-            tamil: parseInt(formData.get('tamil')) || 0,
-            english: parseInt(formData.get('english')) || 0,
-            maths: parseInt(formData.get('maths')) || 0,
-            science: parseInt(formData.get('science')) || 0,
-            social: parseInt(formData.get('social')) || 0
-        };
-        
-        // Validate marks
-        if (Object.values(marks).some(mark => mark < 0 || mark > 100)) {
-            showAlert('Please enter valid marks between 0 and 100', 'danger');
-            return;
-        }
-        
-        try {
-            // Save to API using the updated function
-            await submitMarksToAPI(selectedStudent.id, marks);
+    if (marksForm) {
+        marksForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Update local data
-            selectedStudent.marks = marks;
+            if (!selectedStudent) {
+                showAlert('Please select a student first', 'danger');
+                return;
+            }
             
-            showAlert(`Marks saved successfully for ${selectedStudent.name}`, 'success');
+            // Get form data
+            const formData = new FormData(marksForm);
+            const marks = {
+                tamil: parseInt(formData.get('tamil')) || 0,
+                english: parseInt(formData.get('english')) || 0,
+                maths: parseInt(formData.get('maths')) || 0,
+                science: parseInt(formData.get('science')) || 0,
+                social: parseInt(formData.get('social')) || 0
+            };
             
-            // Reload student list to update status
-            await loadStudentsFromAPI(); // Reload from API to get fresh data
+            // Validate marks
+            if (Object.values(marks).some(mark => mark < 0 || mark > 100)) {
+                showAlert('Please enter valid marks between 0 and 100', 'danger');
+                return;
+            }
             
-            // Reset voice field index
-            currentVoiceFieldIndex = 0;
+            // Check if all marks are provided
+            if (Object.values(marks).some(mark => mark === 0)) {
+                if (!confirm('Some marks are 0. Do you want to continue?')) {
+                    return;
+                }
+            }
             
-            // Re-attach event listeners to student cards
-            attachStudentCardListeners();
-        } catch (error) {
-            showAlert(`Failed to save marks: ${error.message}`, 'danger');
-        }
-    });
+            try {
+                showAlert(`Saving marks for ${selectedStudent.name}...`, 'info');
+                
+                // Save to API using the updated function
+                const result = await submitMarksToAPI(selectedStudent.id, marks);
+                
+                // Update local data
+                selectedStudent.marks = marks;
+                selectedStudent.isMarked = true;
+                selectedStudent.totalMarks = result.student.totalMarks;
+                selectedStudent.percentage = result.student.percentage;
+                selectedStudent.grade = result.student.grade;
+                selectedStudent.status = result.student.status;
+                
+                showAlert(`Marks saved successfully for ${selectedStudent.name}`, 'success');
+                
+                // Reload student list to update status
+                await loadStudentsFromAPI();
+                
+                // Reset voice field index
+                currentVoiceFieldIndex = 0;
+                
+                // Re-attach event listeners to student cards
+                attachStudentCardListeners();
+                
+            } catch (error) {
+                console.error('Error saving marks:', error);
+                showAlert(`Failed to save marks: ${error.message}`, 'danger');
+            }
+        });
+    }
     
     // Clear form
-    clearBtn.addEventListener('click', function() {
-        marksForm.reset();
-        currentVoiceFieldIndex = 0;
-        removeAllHighlights();
-        showAlert('Form cleared', 'success');
-    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (marksForm) marksForm.reset();
+            currentVoiceFieldIndex = 0;
+            removeAllHighlights();
+            showAlert('Form cleared', 'success');
+        });
+    }
     
     // Verify marks
-    verifyBtn.addEventListener('click', function() {
-        verifyAllMarks();
-    });
+    if (verifyBtn) {
+        verifyBtn.addEventListener('click', function() {
+            verifyAllMarks();
+        });
+    }
     
     // Publish results
-    publishBtn.addEventListener('click', function() {
-        publishResults();
-    });
+    if (publishBtn) {
+        publishBtn.addEventListener('click', function() {
+            publishResults();
+        });
+    }
     
     // Attach event listeners to student cards
     attachStudentCardListeners();
@@ -335,31 +439,35 @@ function selectStudent(student) {
     selectedStudent = student;
     
     // Update UI with selected student info
-    selectedStudentName.textContent = student.name;
-    selectedStudentFullName.textContent = student.name;
-    selectedStudentRoll.textContent = student.rollNo;
-    selectedStudentClass.textContent = student.class;
-    selectedStudentAvatar.textContent = student.name.charAt(0);
+    if (selectedStudentName) selectedStudentName.textContent = student.name;
+    if (selectedStudentFullName) selectedStudentFullName.textContent = student.name;
+    if (selectedStudentRoll) selectedStudentRoll.textContent = student.rollNo || 'N/A';
+    if (selectedStudentClass) selectedStudentClass.textContent = student.class || 'N/A';
+    if (selectedStudentAvatar) {
+        selectedStudentAvatar.textContent = student.name ? student.name.charAt(0).toUpperCase() : 'S';
+    }
     
     // Show the selected student card
-    selectedStudentCard.style.display = 'block';
-    
-    // Scroll to the form
-    selectedStudentCard.scrollIntoView({ behavior: 'smooth' });
+    if (selectedStudentCard) {
+        selectedStudentCard.style.display = 'block';
+        
+        // Scroll to the form
+        selectedStudentCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     
     // Reset voice field index
     currentVoiceFieldIndex = 0;
     
     // If student has marks, populate the form
     if (student.marks) {
-        document.getElementById('tamil').value = student.marks.tamil;
-        document.getElementById('english').value = student.marks.english;
-        document.getElementById('maths').value = student.marks.maths;
-        document.getElementById('science').value = student.marks.science;
-        document.getElementById('social').value = student.marks.social;
+        if (document.getElementById('tamil')) document.getElementById('tamil').value = student.marks.tamil || '';
+        if (document.getElementById('english')) document.getElementById('english').value = student.marks.english || '';
+        if (document.getElementById('maths')) document.getElementById('maths').value = student.marks.maths || '';
+        if (document.getElementById('science')) document.getElementById('science').value = student.marks.science || '';
+        if (document.getElementById('social')) document.getElementById('social').value = student.marks.social || '';
     } else {
         // Clear the form
-        marksForm.reset();
+        if (marksForm) marksForm.reset();
     }
     
     showAlert(`Selected student: ${student.name}`, 'success');
@@ -368,8 +476,8 @@ function selectStudent(student) {
 function setupVoiceRecognition() {
     // Check if browser supports speech recognition
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        voiceBtn.disabled = true;
-        voiceStatus.textContent = 'Voice recognition not supported in this browser';
+        if (voiceBtn) voiceBtn.disabled = true;
+        if (voiceStatus) voiceStatus.textContent = 'Voice recognition not supported in this browser';
         return;
     }
     
@@ -381,20 +489,26 @@ function setupVoiceRecognition() {
     recognition.lang = 'en-US';
     
     // Voice button click handler
-    voiceBtn.addEventListener('click', function() {
-        if (voiceBtn.classList.contains('recording')) {
-            stopVoiceRecognition();
-        } else {
-            startVoiceRecognition();
-        }
-    });
+    if (voiceBtn) {
+        voiceBtn.addEventListener('click', function() {
+            if (voiceBtn.classList.contains('recording')) {
+                stopVoiceRecognition();
+            } else {
+                startVoiceRecognition();
+            }
+        });
+    }
     
     // Speech recognition event handlers
     recognition.onstart = function() {
-        voiceBtn.classList.add('recording');
-        voiceBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
-        voiceStatus.textContent = 'Listening... Speak now';
-        voiceStatus.classList.add('recording');
+        if (voiceBtn) {
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+        }
+        if (voiceStatus) {
+            voiceStatus.textContent = 'Listening... Speak now';
+            voiceStatus.classList.add('recording');
+        }
         
         // Highlight the current field
         highlightCurrentField();
@@ -437,10 +551,14 @@ function stopVoiceRecognition() {
         // Ignore errors when stopping
     }
     
-    voiceBtn.classList.remove('recording');
-    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice Entry';
-    voiceStatus.textContent = 'Click the microphone to enter marks by voice';
-    voiceStatus.classList.remove('recording');
+    if (voiceBtn) {
+        voiceBtn.classList.remove('recording');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice Entry';
+    }
+    if (voiceStatus) {
+        voiceStatus.textContent = 'Click the microphone to enter marks by voice';
+        voiceStatus.classList.remove('recording');
+    }
     
     // Remove highlights
     removeAllHighlights();
@@ -466,7 +584,9 @@ function highlightCurrentField() {
                 'social': 'Social Science'
             };
             
-            voiceStatus.textContent = `Listening for ${subjectNames[subjectFields[currentVoiceFieldIndex]]} marks...`;
+            if (voiceStatus) {
+                voiceStatus.textContent = `Listening for ${subjectNames[subjectFields[currentVoiceFieldIndex]]} marks...`;
+            }
         }
     }
 }
@@ -481,7 +601,7 @@ function removeAllHighlights() {
 }
 
 function processVoiceInput(transcript) {
-    showAlert(`Voice input: "${transcript}"`, 'success');
+    showAlert(`Voice input: "${transcript}"`, 'info');
     
     // Parse the voice input for subject and marks
     const words = transcript.toLowerCase().split(' ');
@@ -529,7 +649,9 @@ function processVoiceInput(transcript) {
                 if (currentVoiceFieldIndex >= subjectFields.length) {
                     showAlert('All marks entered! Saving...', 'success');
                     setTimeout(() => {
-                        marksForm.dispatchEvent(new Event('submit'));
+                        if (marksForm) {
+                            marksForm.dispatchEvent(new Event('submit'));
+                        }
                     }, 1000);
                 } else {
                     // Continue with next field
@@ -558,7 +680,9 @@ function processVoiceInput(transcript) {
                         if (currentVoiceFieldIndex >= subjectFields.length) {
                             showAlert('All marks entered! Saving...', 'success');
                             setTimeout(() => {
-                                marksForm.dispatchEvent(new Event('submit'));
+                                if (marksForm) {
+                                    marksForm.dispatchEvent(new Event('submit'));
+                                }
                             }, 1000);
                         } else {
                             // Continue with next field
@@ -576,63 +700,139 @@ function processVoiceInput(transcript) {
 }
 
 function verifyAllMarks() {
-    const unmarkedStudents = studentsData.filter(student => !student.marks);
+    const unmarkedStudents = studentsData.filter(student => !student.isMarked || student.isMarked === false);
     
     if (unmarkedStudents.length > 0) {
-        verificationDetails.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>Verification Failed:</strong> ${unmarkedStudents.length} students still need marks entry.
-            </div>
-            <p>The following students are missing marks:</p>
-            <ul>
-                ${unmarkedStudents.map(student => `<li>${student.name} (${student.rollNo})</li>`).join('')}
-            </ul>
-        `;
-        publishBtn.disabled = true;
+        if (verificationDetails) {
+            verificationDetails.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Verification Failed:</strong> ${unmarkedStudents.length} students still need marks entry.
+                </div>
+                <p>The following students are missing marks:</p>
+                <ul>
+                    ${unmarkedStudents.map(student => `<li>${student.name} (${student.rollNo})</li>`).join('')}
+                </ul>
+            `;
+        }
+        if (publishBtn) publishBtn.disabled = true;
     } else {
-        verificationDetails.innerHTML = `
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
-                <strong>Verification Successful:</strong> All students have marks entered.
-            </div>
-            <p>You can now publish the results.</p>
-        `;
-        publishBtn.disabled = false;
+        if (verificationDetails) {
+            verificationDetails.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Verification Successful:</strong> All students have marks entered.
+                </div>
+                <p>You can now publish the results.</p>
+            `;
+        }
+        if (publishBtn) publishBtn.disabled = false;
     }
     
-    verificationResults.style.display = 'block';
-    verificationResults.scrollIntoView({ behavior: 'smooth' });
+    if (verificationResults) {
+        verificationResults.style.display = 'block';
+        verificationResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function publishResults() {
     // In a real app, this would send data to the backend
     console.log('Publishing results:', studentsData);
     
+    showAlert('Publishing results...', 'info');
+    
     // Simulate API call
     setTimeout(() => {
-        showAlert('Results published successfully!', 'success');
+        showAlert('Results published successfully! All students can now view their marks and rankings.', 'success');
         
         // Reset publish button
-        publishBtn.disabled = true;
-        verificationResults.style.display = 'none';
+        if (publishBtn) publishBtn.disabled = true;
+        if (verificationResults) verificationResults.style.display = 'none';
         
-        // In a real app, you would redirect or show a success page
-    }, 1500);
+    }, 2000);
 }
 
 function showAlert(message, type) {
+    if (!alertContainer) return;
+    
     const alert = document.createElement('div');
     alert.className = `alert alert-${type}`;
+    alert.style.cssText = `
+        padding: 12px 16px;
+        margin: 10px 0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    // Set colors based on type
+    const colors = {
+        success: { bg: '#d4edda', text: '#155724', border: '#c3e6cb' },
+        danger: { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb' },
+        info: { bg: '#d1ecf1', text: '#0c5460', border: '#bee5eb' },
+        warning: { bg: '#fff3cd', text: '#856404', border: '#ffeaa7' }
+    };
+    
+    const color = colors[type] || colors.info;
+    alert.style.backgroundColor = color.bg;
+    alert.style.color = color.text;
+    alert.style.border = `1px solid ${color.border}`;
+    
+    const iconClass = {
+        success: 'fa-check-circle',
+        danger: 'fa-exclamation-triangle',
+        info: 'fa-info-circle',
+        warning: 'fa-exclamation-circle'
+    }[type] || 'fa-info-circle';
+    
     alert.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
-        ${message}
+        <i class="fas ${iconClass}"></i>
+        <span>${message}</span>
     `;
     
     alertContainer.appendChild(alert);
     
+    // Add animation style if not exists
+    if (!document.querySelector('#alert-animations')) {
+        const style = document.createElement('style');
+        style.id = 'alert-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateY(-10px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
     // Remove alert after 5 seconds
     setTimeout(() => {
-        alert.remove();
+        if (alert.parentNode) {
+            alert.style.animation = 'slideIn 0.3s ease-out reverse';
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 300);
+        }
     }, 5000);
 }
+
+// Add network status monitoring
+window.addEventListener('online', function() {
+    console.log('Network connection restored');
+    showAlert('Network connection restored', 'success');
+});
+
+window.addEventListener('offline', function() {
+    console.log('Network connection lost');
+    showAlert('Network connection lost. Some features may not work.', 'warning');
+});

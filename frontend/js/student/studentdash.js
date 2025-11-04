@@ -81,6 +81,11 @@ async function checkAuthentication() {
         }
         
         const response = await fetch(`${API_BASE_URL}/api/check-auth?userType=${session.userType}&userId=${session.user.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Authentication check failed');
+        }
+        
         const authData = await response.json();
         
         if (!authData.authenticated) {
@@ -160,25 +165,287 @@ async function loadStudentData() {
         const session = JSON.parse(currentSession);
         const studentId = session.user.id;
 
+        console.log('Fetching student data for ID:', studentId);
+
         const response = await fetch(`${API_BASE_URL}/api/student/${studentId}`);
-        if (!response.ok) throw new Error("Failed to fetch student data");
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to fetch student data: ${response.status} ${errorText}`);
+        }
         
         const data = await response.json();
 
         console.log("✅ Student data from backend:", data);
 
         // Update student info in card
-        document.querySelector('.data-placeholder').innerHTML = `
-            <p><strong>Name:</strong> ${data.name}</p>
-            <p><strong>Roll No:</strong> ${data.id}</p>
-            <p><strong>Class:</strong> ${data.className}</p>
-            <p><strong>Academic Year:</strong> ${data.academicYear}</p>
-            <p><strong>Attendance:</strong> ${data.attendance}</p>
-        `;
+        const dataPlaceholder = document.querySelector('.data-placeholder');
+        if (dataPlaceholder) {
+            dataPlaceholder.innerHTML = `
+                <div class="student-info-grid">
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <div class="info-content">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value">${data.name || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-id-card"></i>
+                        <div class="info-content">
+                            <span class="info-label">Roll No:</span>
+                            <span class="info-value">${data.rollNo || data.id || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div class="info-content">
+                            <span class="info-label">Class:</span>
+                            <span class="info-value">${data.class || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-users"></i>
+                        <div class="info-content">
+                            <span class="info-label">Section:</span>
+                            <span class="info-value">${data.section || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="info-content">
+                            <span class="info-label">Academic Year:</span>
+                            <span class="info-value">${data.academicYear || '2024-2025'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="info-content">
+                            <span class="info-label">Attendance:</span>
+                            <span class="info-value">${data.attendance || 0}%</span>
+                        </div>
+                    </div>
+                    ${data.isMarked ? `
+                    <div class="info-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="info-content">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value status-${data.status?.toLowerCase() || 'unmarked'}">${data.status || 'Unmarked'}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Add some basic styling if needed
+            if (!document.querySelector('#student-info-styles')) {
+                const style = document.createElement('style');
+                style.id = 'student-info-styles';
+                style.textContent = `
+                    .student-info-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 15px;
+                        padding: 10px;
+                    }
+                    .info-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 12px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        border-left: 4px solid #007bff;
+                    }
+                    .info-item i {
+                        font-size: 1.2em;
+                        color: #007bff;
+                        width: 24px;
+                        text-align: center;
+                    }
+                    .info-content {
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .info-label {
+                        font-size: 0.85em;
+                        color: #6c757d;
+                        font-weight: 500;
+                    }
+                    .info-value {
+                        font-size: 1em;
+                        color: #343a40;
+                        font-weight: 600;
+                    }
+                    .status-pass {
+                        color: #28a745;
+                        font-weight: 600;
+                    }
+                    .status-fail {
+                        color: #dc3545;
+                        font-weight: 600;
+                    }
+                    .status-unmarked {
+                        color: #6c757d;
+                        font-weight: 600;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
     } catch (err) {
         console.error("❌ Error fetching student data:", err);
-        document.querySelector('.data-placeholder').innerHTML = `
-            <p style="color:red;">Error fetching student data. Please check your backend connection.</p>
-        `;
+        const dataPlaceholder = document.querySelector('.data-placeholder');
+        if (dataPlaceholder) {
+            dataPlaceholder.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error fetching student data: ${err.message}</p>
+                    <p>Please check if the server is running on ${API_BASE_URL}</p>
+                    <button onclick="loadStudentData()" class="retry-btn">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
+            
+            // Add error styling
+            if (!document.querySelector('#error-styles')) {
+                const style = document.createElement('style');
+                style.id = 'error-styles';
+                style.textContent = `
+                    .error-message {
+                        text-align: center;
+                        padding: 30px;
+                        color: #dc3545;
+                    }
+                    .error-message i {
+                        font-size: 3em;
+                        margin-bottom: 15px;
+                        opacity: 0.7;
+                    }
+                    .error-message p {
+                        margin: 10px 0;
+                        line-height: 1.5;
+                    }
+                    .retry-btn {
+                        margin-top: 15px;
+                        padding: 10px 20px;
+                        background: #dc3545;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 0.9em;
+                    }
+                    .retry-btn:hover {
+                        background: #c82333;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
     }
 }
+
+// Add network status monitoring
+window.addEventListener('online', function() {
+    console.log('Network connection restored');
+    showNotification('Network connection restored', 'success');
+});
+
+window.addEventListener('offline', function() {
+    console.log('Network connection lost');
+    showNotification('Network connection lost', 'warning');
+});
+
+function showNotification(message, type) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.student-notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `student-notification alert-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 10000;
+        max-width: 300px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideInRight 0.3s ease-out;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9em;
+    `;
+    
+    // Set background color based on type
+    if (type === 'success') {
+        notification.style.backgroundColor = '#28a745';
+    } else if (type === 'danger') {
+        notification.style.backgroundColor = '#dc3545';
+    } else if (type === 'warning') {
+        notification.style.backgroundColor = '#ffc107';
+        notification.style.color = '#212529';
+    } else {
+        notification.style.backgroundColor = '#17a2b8';
+    }
+    
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+        ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add CSS animation if not already added
+    if (!document.querySelector('#notification-animations')) {
+        const style = document.createElement('style');
+        style.id = 'notification-animations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Remove notification after 4 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 4000);
+}
+
+// Auto-refresh data every 30 seconds (optional)
+setInterval(() => {
+    console.log('Auto-refreshing student data...');
+    loadStudentData();
+}, 30000);
