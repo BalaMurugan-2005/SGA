@@ -34,12 +34,18 @@ const rankDataPath = path.join(studentDataDir, 'rankData.json');
 const teacherDataPath = path.join(teacherDataDir, 'teacherData.json');
 const marksDataPath = path.join(teacherDataDir, 'studentsMarks.json');
 
+// ✅ NEW: User credentials path
+const userCredentialsPath = path.join(__dirname, 'data', 'userCredentials.json');
+
 // Ensure data directories exist
 if (!fs.existsSync(studentDataDir)) {
     fs.mkdirSync(studentDataDir, { recursive: true });
 }
 if (!fs.existsSync(teacherDataDir)) {
     fs.mkdirSync(teacherDataDir, { recursive: true });
+}
+if (!fs.existsSync(path.join(__dirname, 'data'))) {
+    fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 }
 
 // Initialize empty data files if they don't exist
@@ -49,35 +55,72 @@ initializeDataFiles();
 // 🔧 Utility Functions
 // ===============================
 function initializeDataFiles() {
+    // ✅ NEW: User credentials file
+    if (!fs.existsSync(userCredentialsPath)) {
+        const defaultCredentials = {
+            students: [
+                { 
+                    id: "S20230045", 
+                    username: "student", 
+                    password: "student123", 
+                    name: "Bala Murugan",
+                    className: "10-A",
+                    academicYear: "2025-2026"
+                },
+                { 
+                    id: "S20230046", 
+                    username: "karthik", 
+                    password: "karthik123", 
+                    name: "Karthik Kumar",
+                    className: "10-B",
+                    academicYear: "2025-2026"
+                }
+            ],
+            teachers: [
+                {
+                    id: "TCH-7284",
+                    username: "teacher",
+                    password: "teacher123",
+                    name: "Dr. Anitha Rajesh",
+                    subject: "Mathematics",
+                    email: "anitha.rajesh@schooldemo.edu",
+                    class: "10A & 10B"
+                },
+                {
+                    id: "TCH-7285",
+                    username: "david",
+                    password: "david123",
+                    name: "Mr. David Lee",
+                    subject: "Science",
+                    email: "david.lee@grademaster.edu",
+                    class: "10A & 10B"
+                }
+            ]
+        };
+        fs.writeFileSync(userCredentialsPath, JSON.stringify(defaultCredentials, null, 2));
+        console.log('✅ User credentials file created');
+    }
+
     // Student data files
     if (!fs.existsSync(studentDataPath)) {
         const defaultStudents = [
             { 
-                id: "S001", 
-                name: "Rahul Kumar", 
-                rollNo: "S001", 
+                id: "S20230045", 
+                name: "Bala Murugan", 
+                rollNo: "S20230045", 
                 class: "10A",
                 className: "10th Standard A",
                 academicYear: "2024-2025",
                 attendance: "95%"
             },
             { 
-                id: "S002", 
-                name: "Priya Sharma", 
-                rollNo: "S002", 
+                id: "S20230046", 
+                name: "Karthik Kumar", 
+                rollNo: "S20230046", 
                 class: "10A",
                 className: "10th Standard A",
                 academicYear: "2024-2025",
                 attendance: "92%"
-            },
-            { 
-                id: "S003", 
-                name: "Amit Patel", 
-                rollNo: "S003", 
-                class: "10A",
-                className: "10th Standard A",
-                academicYear: "2024-2025",
-                attendance: "88%"
             }
         ];
         fs.writeFileSync(studentDataPath, JSON.stringify(defaultStudents, null, 2));
@@ -87,8 +130,8 @@ function initializeDataFiles() {
     if (!fs.existsSync(resultDataPath)) {
         const defaultResult = {
             student: {
-                name: "Rahul Kumar",
-                rollNo: "S001",
+                name: "Bala Murugan",
+                rollNo: "S20230045",
                 class: "10A",
                 section: "A"
             },
@@ -190,6 +233,58 @@ const writeJSONFile = (filePath, data) => {
         });
     });
 };
+
+// ===============================
+// 🔐 AUTHENTICATION API Routes
+// ===============================
+
+// ✅ User Login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password, userType } = req.body;
+
+        if (!username || !password || !userType) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Username, password, and user type are required' 
+            });
+        }
+
+        const credentials = await readJSONFile(userCredentialsPath);
+        const userList = userType === 'student' ? credentials.students : credentials.teachers;
+        
+        const user = userList.find(u => 
+            u.username === username && u.password === password
+        );
+
+        if (!user) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Invalid username or password' 
+            });
+        }
+
+        // Return user data without password
+        const { password: _, ...userData } = user;
+        
+        res.json({
+            success: true,
+            message: 'Login successful',
+            userType: userType,
+            user: userData,
+            redirectUrl: userType === 'student' 
+                ? '/frontend/templates/student/Student_DashBoard.html' 
+                : '/frontend/templates/Teacher/Teacher_DashBoard.html'
+        });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error during login' 
+        });
+    }
+});
 
 // ===============================
 // 🎓 STUDENT API Routes
@@ -777,11 +872,15 @@ app.listen(PORT, () => {
     console.log(`\n🔑 Login Page:`);
     console.log(`   🔐 Login: http://127.0.0.1:5500/frontend/templates/login.html`);
     console.log(`\n🔗 API Endpoints (Server running on port ${PORT}):`);
+    console.log(`   🔐 Auth API: http://localhost:${PORT}/api/login`);
     console.log(`   🎓 Student APIs: http://localhost:${PORT}/api/student/:id, /api/result/:id, /api/rankings`);
     console.log(`   👩‍🏫 Teacher APIs: http://localhost:${PORT}/api/teacher/:id, /api/students, /api/teacher/rankings, /api/statistics`);
     console.log(`   📊 Statistics: http://localhost:${PORT}/api/statistics, /api/export/rankings`);
     console.log(`\n📁 Data Files Initialized:`);
-    console.log(`   ✅ students.json, resultData.json, rankData.json`);
+    console.log(`   ✅ userCredentials.json, students.json, resultData.json, rankData.json`);
     console.log(`   ✅ teacherData.json, studentsMarks.json`);
+    console.log(`\n🔐 Default Login Credentials:`);
+    console.log(`   👨‍🎓 Student: username="student", password="student123"`);
+    console.log(`   👩‍🏫 Teacher: username="teacher", password="teacher123"`);
     console.log(`\n💡 Important: Your frontend runs on Live Server (port 5500) and makes API calls to this server (port 5001)`);
 });

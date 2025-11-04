@@ -59,46 +59,75 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const studentBtn = document.getElementById('student-btn');
-            const teacherBtn = document.getElementById('teacher-btn');
-            const loginForm = document.getElementById('loginForm');
-            
-            // Toggle between student and teacher login
-            studentBtn.addEventListener('click', function() {
-                studentBtn.classList.add('active');
-                teacherBtn.classList.remove('active');
-                document.querySelector('.login-btn').textContent = 'Sign In as Student';
-            });
-            
-            teacherBtn.addEventListener('click', function() {
-                teacherBtn.classList.add('active');
-                studentBtn.classList.remove('active');
-                document.querySelector('.login-btn').textContent = 'Sign In as Teacher';
-            });
-            
-            // Form submission
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const isStudent = studentBtn.classList.contains('active');
-                
-                // Simple validation
-                if (username && password) {
-                    // In a real app, you would send this data to a server
-                    // For demo purposes, we'll just redirect
-                    if (isStudent) {
-                        window.location.href = 'student-dashboard.html';
-                    } else {
-                        window.location.href = 'teacher-dashboard.html';
-                    }
-                } else {
-                    alert('Please fill in all fields');
-                }
-            });
+        
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentBtn = document.getElementById('student-btn');
+        const teacherBtn = document.getElementById('teacher-btn');
+        const loginForm = document.getElementById('loginForm');
+        
+        // Toggle between student and teacher login
+        studentBtn.addEventListener('click', function() {
+            studentBtn.classList.add('active');
+            teacherBtn.classList.remove('active');
+            document.querySelector('.login-btn').textContent = 'Sign In as Student';
         });
+        
+        teacherBtn.addEventListener('click', function() {
+            teacherBtn.classList.add('active');
+            studentBtn.classList.remove('active');
+            document.querySelector('.login-btn').textContent = 'Sign In as Teacher';
+        });
+        
+        // Form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const isStudent = studentBtn.classList.contains('active');
+            const userType = isStudent ? 'student' : 'teacher';
+            
+            // Simple validation
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        userType: userType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store user info in localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    localStorage.setItem('userType', userType);
+                    
+                    // Redirect to appropriate dashboard
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert(data.message || 'Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        });
+        
+        // Set default to student login
+        studentBtn.classList.add('active');
+    });
+
     </script>
 </body>
 </html>

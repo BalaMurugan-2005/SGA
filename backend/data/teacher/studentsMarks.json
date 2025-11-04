@@ -30,7 +30,13 @@
     "name": "Amit Patel",
     "rollNo": "S003",
     "class": "10A",
-    "marks": null
+    "marks": {
+      "tamil": 96,
+      "english": 78,
+      "maths": 96,
+      "science": 45,
+      "social": 78
+    }
   },
   {
     "id": "S004",
