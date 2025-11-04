@@ -102,7 +102,7 @@ Welcome to **GradeMaster**! Follow these simple steps to set up and run GradeMas
 
 2. **Open in VS Code**  
    ```bash
-   code grade-master
+   code SGA
    ```
 
 ---
