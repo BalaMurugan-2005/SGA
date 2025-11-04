@@ -76,36 +76,52 @@ The **Student Dashboard** provides each learner with personalized academic insig
 
 ---
 
-## 🚀 Getting Started
+🚀 Getting Started
+Follow these steps to set up and run GradeMaster on your local system:
 
-Follow these steps to set up and run the Student Grade Calculator on your local system:
+Prerequisites
+Node.js (v18 or higher) - Download here
 
-### 🧑‍🏫 For starting backend server
+VS Code with Live Server extension (recommended)
 
-1. **Open your project folder** in VS Code.
-2. **Start the teacher  and students server**
-   ```bash
-   cd backend
-   node server.js
-   ```
-3. **Launch the Teacher Dashboard:**  
-   Open `frontend/teacher/teacher_dashboard.html` using Live Server.
+Modern web browser (Chrome, Firefox, Safari, or Edge)
 
-4. **Features Available:**  
-   - Enter and manage marks  
-   - Publish results  
-   - View student rankings
+Step 1: Project Setup
+Download and extract the project files to your desired location
 
----
-Student dashboard
-**Launch the Student Dashboard:**  
-   Open `frontend/student/student_dashboard.html` using Live Server.
- **Features Available:**  
-   - View marks, grades, and detailed results  
-   - Check your academic ranking
+Open the project folder in VS Code:
 
----
+bash
+code grade-master
+Step 2: Backend Server Setup
+Navigate to backend directory:
 
+bash
+cd backend
+Install dependencies (if not already installed):
+
+bash
+npm install express cors
+Start the server:
+
+bash
+node server.js
+Verify server is running:
+
+You should see: ✅ Consolidated Student & Teacher Server running on http://localhost:5001
+
+Keep this terminal window open
+
+Step 3: Frontend Setup
+Option A: Using VS Code Live Server (Recommended)
+
+Install "Live Server" extension in VS Code
+
+Right-click on frontend/templates/login.html
+
+Select "Open with Live Server"
+
+Browser will open automatically at http://127.0.0.1:5500
 ## ✨ Conclusion
 
 The **Student Grade Calculator** bridges the gap between manual grading and digital automation. By integrating intelligent features like automatic grade computation, voice-enabled mark entry, and dynamic ranking, it empowers both teachers and students—making academic management faster, smarter, and more reliable.
