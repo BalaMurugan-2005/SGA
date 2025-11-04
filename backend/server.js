@@ -244,11 +244,12 @@ app.get('/api/result/:id', async (req, res) => {
 });
 
 // ✅ 3. Get ranking list (View Rank page) - FIXED FOR YOUR DATA STRUCTURE
+// ✅ 3. Get ranking list (View Rank page) - UPDATED FOR BOTH STUDENT AND TEACHER
 app.get('/api/rankings', async (req, res) => {
     try {
         const studentData = await readJSONFile(studentDataPath);
         
-        // Get all marked students and sort by rank from your Student.json structure
+        // Get all marked students and sort by rank
         const markedStudents = (studentData.students || [])
             .filter(student => student.isMarked && student.rank)
             .sort((a, b) => a.rank - b.rank)
@@ -257,10 +258,14 @@ app.get('/api/rankings', async (req, res) => {
                 name: student.name,
                 rollNo: student.rollNo,
                 id: student.id,
+                class: student.class,
+                section: student.section,
                 totalMarks: student.totalMarks,
                 percentage: student.percentage,
                 grade: student.grade,
-                status: student.status
+                status: student.status,
+                isMarked: student.isMarked || false,
+                marks: student.marks
             }));
 
         const response = {

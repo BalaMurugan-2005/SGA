@@ -20,7 +20,6 @@ let rankingsData = [];
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication first
     checkAuthentication();
 });
 
@@ -106,7 +105,6 @@ function setupNavigation() {
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Handle logout link separately
             if (this.getAttribute('href') === 'login.html' || 
                 this.querySelector('.fa-sign-out-alt')) {
                 e.preventDefault();
@@ -147,7 +145,6 @@ async function loadRankings() {
     try {
         console.log('Loading rankings data...');
         
-        // Load rankings and statistics from API
         const rankingsResponse = await fetch(`${API_BASE_URL}/api/rankings`);
         
         if (!rankingsResponse.ok) {
@@ -282,7 +279,7 @@ function displayRankings(students) {
         const row = document.createElement('tr');
         row.className = 'rank-row';
         
-        // Add medal for top 3 ranks
+        // Add medal for top 3 ranks (same as student view)
         let rankDisplay = `<span class="rank-cell">${student.rank}</span>`;
         if (student.rank === 1) {
             rankDisplay = `<div class="rank-cell"><i class="fas fa-medal medal medal-gold"></i> ${student.rank}</div>`;
@@ -361,7 +358,6 @@ function setupEventListeners() {
 
 function filterRankings(searchTerm) {
     if (!searchTerm) {
-        // If search is empty, show all rankings
         displayRankings(rankingsData);
         return;
     }
