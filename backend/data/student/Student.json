@@ -28,7 +28,8 @@
       "percentage": 98.4,
       "grade": "A+",
       "status": "Pass",
-      "password": "Arj!n492#"
+      "password": "Arj!n492#",
+      "badges": ["rank-1", "perfect-attendance", "all-subjects-95+", "academic-excellence"]
     },
     {
       "rank": 2,
@@ -53,7 +54,8 @@
       "percentage": 97,
       "grade": "A+",
       "status": "Pass",
-      "password": "Kvya#485*"
+      "password": "Kvya#485*",
+      "badges": ["rank-2", "high-achiever", "maths-excellence", "consistent-performer"]
     },
     {
       "rank": 3,
@@ -79,157 +81,8 @@
       "grade": "A+",
       "status": "Pass",
       "isYou": true,
-      "password": "Bala#459!"
-    },
-    {
-      "rank": 5,
-      "id": "S20230041",
-      "name": "Priya Devi",
-      "rollNo": "S20230041",
-      "class": "10",
-      "section": "A",
-      "academicYear": "2024-2025",
-      "attendance": 92,
-      "isMarked": true,
-      "username": "priya_devi_s20230041",
-      "email": "priya.devi.s20230041@example.com",
-      "marks": {
-        "tamil": 88,
-        "english": 90,
-        "maths": 86,
-        "science": 87,
-        "social": 87
-      },
-      "totalMarks": 438,
-      "percentage": 87.6,
-      "grade": "B+",
-      "status": "Pass",
-      "password": "Priya_D438"
-    },
-    {
-      "rank": 6,
-      "id": "S20230055",
-      "name": "Suresh",
-      "rollNo": "S20230055",
-      "class": "10",
-      "section": "B",
-      "academicYear": "2024-2025",
-      "attendance": 89,
-      "isMarked": true,
-      "username": "suresh_s20230055",
-      "email": "suresh.s20230055@example.com",
-      "marks": {
-        "tamil": 84,
-        "english": 80,
-        "maths": 88,
-        "science": 83,
-        "social": 86
-      },
-      "totalMarks": 421,
-      "percentage": 84.2,
-      "grade": "B",
-      "status": "Pass",
-      "password": "Suresh#421"
-    },
-    {
-      "rank": 7,
-      "id": "S20230062",
-      "name": "Harini",
-      "rollNo": "S20230062",
-      "class": "10",
-      "section": "B",
-      "academicYear": "2024-2025",
-      "attendance": 90,
-      "isMarked": true,
-      "username": "harini_s20230062",
-      "email": "harini.s20230062@example.com",
-      "marks": {
-        "tamil": 82,
-        "english": 84,
-        "maths": 80,
-        "science": 84,
-        "social": 84
-      },
-      "totalMarks": 414,
-      "percentage": 82.8,
-      "grade": "B",
-      "status": "Pass",
-      "password": "Harini_414"
-    },
-    {
-      "rank": 8,
-      "id": "S20230070",
-      "name": "Manoj",
-      "rollNo": "S20230070",
-      "class": "10",
-      "section": "B",
-      "academicYear": "2024-2025",
-      "attendance": 88,
-      "isMarked": true,
-      "username": "manoj_s20230070",
-      "email": "manoj.s20230070@example.com",
-      "marks": {
-        "tamil": 80,
-        "english": 78,
-        "maths": 82,
-        "science": 80,
-        "social": 80
-      },
-      "totalMarks": 400,
-      "percentage": 80,
-      "grade": "B",
-      "status": "Pass",
-      "password": "Manoj400!"
-    },
-    {
-      "rank": 10,
-      "id": "S20230081",
-      "name": "Devi Lakshmi",
-      "rollNo": "S20230081",
-      "class": "10",
-      "section": "C",
-      "academicYear": "2024-2025",
-      "attendance": 87,
-      "isMarked": true,
-      "username": "devi_lakshmi_s20230081",
-      "email": "devi.lakshmi.s20230081@example.com",
-      "marks": {
-        "tamil": 79,
-        "english": 78,
-        "maths": 80,
-        "science": 79,
-        "social": 79
-      },
-      "totalMarks": 395,
-      "percentage": 79,
-      "grade": "C+",
-      "status": "Pass",
-      "password": "Devi#395"
-    },
-    {
-      "rank": 12,
-      "id": "S20230090",
-      "name": "Kiran",
-      "rollNo": "S20230090",
-      "class": "10",
-      "section": "C",
-      "academicYear": "2024-2025",
-      "attendance": 85,
-      "isMarked": true,
-      "username": "kiran_s20230090",
-      "email": "kiran.s20230090@example.com",
-      "marks": {
-        "tamil": 76,
-        "english": 74,
-        "maths": 78,
-        "science": 30,
-        "social": 76
-      },
-      "totalMarks": 334,
-      "percentage": 66.8,
-      "grade": "C",
-      "status": "Fail",
-      "password": "Kiran380!"
+      "password": "Bala#459!",
+      "badges": ["rank-3", "perfect-maths", "perfect-social", "subject-expert"]
     },
     {
       "rank": 4,
@@ -254,70 +107,115 @@
       "percentage": 94.2,
       "grade": "A+",
       "status": "Pass",
-      "password": "Divya471@"
+      "password": "Divya471@",
+      "badges": ["rank-4", "all-rounder", "high-attendance", "consistent-performer"]
     },
     {
-      "id": "S20230111",
-      "name": "Sneha Reddy",
-      "rollNo": "S20230111",
+      "rank": 5,
+      "id": "S20230041",
+      "name": "Priya Devi",
+      "rollNo": "S20230041",
       "class": "10",
       "section": "A",
+      "academicYear": "2024-2025",
+      "attendance": 92,
+      "isMarked": true,
+      "username": "priya_devi_s20230041",
+      "email": "priya.devi.s20230041@example.com",
+      "marks": {
+        "tamil": 88,
+        "english": 90,
+        "maths": 86,
+        "science": 87,
+        "social": 87
+      },
+      "totalMarks": 438,
+      "percentage": 87.6,
+      "grade": "B+",
+      "status": "Pass",
+      "password": "Priya_D438",
+      "badges": ["rank-5", "english-excellence"]
+    },
+    {
+      "rank": 6,
+      "id": "S20230055",
+      "name": "Suresh",
+      "rollNo": "S20230055",
+      "class": "10",
+      "section": "B",
+      "academicYear": "2024-2025",
+      "attendance": 89,
+      "isMarked": true,
+      "username": "suresh_s20230055",
+      "email": "suresh.s20230055@example.com",
+      "marks": {
+        "tamil": 84,
+        "english": 80,
+        "maths": 88,
+        "science": 83,
+        "social": 86
+      },
+      "totalMarks": 421,
+      "percentage": 84.2,
+      "grade": "B",
+      "status": "Pass",
+      "password": "Suresh#421",
+      "badges": ["maths-strength"]
+    },
+    {
+      "rank": 7,
+      "id": "S20230062",
+      "name": "Harini",
+      "rollNo": "S20230062",
+      "class": "10",
+      "section": "B",
       "academicYear": "2024-2025",
       "attendance": 90,
       "isMarked": true,
-      "username": "sneha_reddy_s20230111",
-      "email": "sneha.reddy.s20230111@example.com",
+      "username": "harini_s20230062",
+      "email": "harini.s20230062@example.com",
       "marks": {
-        "tamil": 45,
-        "english": 98,
-        "maths": 78,
-        "science": 87,
-        "social": 52
+        "tamil": 82,
+        "english": 84,
+        "maths": 80,
+        "science": 84,
+        "social": 84
       },
-      "totalMarks": 360,
-      "percentage": 72,
-      "grade": "B+",
+      "totalMarks": 414,
+      "percentage": 82.8,
+      "grade": "B",
       "status": "Pass",
-      "password": "Sneha#90",
-      "rank": 11
+      "password": "Harini_414",
+      "badges": ["balanced-performer"]
     },
     {
-      "id": "S20230112",
-      "name": "Rahul Kumar",
-      "rollNo": "S20230112",
+      "rank": 8,
+      "id": "S20230070",
+      "name": "Manoj",
+      "rollNo": "S20230070",
       "class": "10",
-      "section": "A",
+      "section": "B",
       "academicYear": "2024-2025",
-      "attendance": 85,
-      "isMarked": false,
-      "username": "rahul_kumar_s20230112",
-      "email": "rahul.kumar.s20230112@example.com",
-      "marks": null,
-      "totalMarks": null,
-      "percentage": null,
-      "grade": null,
-      "status": "Unmarked",
-      "password": "Rahul@85"
+      "attendance": 88,
+      "isMarked": true,
+      "username": "manoj_s20230070",
+      "email": "manoj.s20230070@example.com",
+      "marks": {
+        "tamil": 80,
+        "english": 78,
+        "maths": 82,
+        "science": 80,
+        "social": 80
+      },
+      "totalMarks": 400,
+      "percentage": 80,
+      "grade": "B",
+      "status": "Pass",
+      "password": "Manoj400!",
+      "badges": ["consistent-effort"]
     },
     {
-      "id": "S20230113",
-      "name": "Meena Raj",
-      "rollNo": "S20230113",
-      "class": "10",
-      "section": "A",
-      "academicYear": "2024-2025",
-      "attendance": 91,
-      "isMarked": false,
-      "username": "meena_raj_s20230113",
-      "email": "meena.raj.s20230113@example.com",
-      "marks": null,
-      "totalMarks": null,
-      "percentage": null,
-      "grade": null,
-      "status": "Unmarked",
-      "password": "Meena@91"
-    },
-    {
+      "rank": 9,
       "id": "S20230114",
       "name": "Vikram Singh",
       "rollNo": "S20230114",
@@ -340,7 +238,123 @@
       "grade": "A",
       "status": "Pass",
       "password": "Vikram#80",
-      "rank": 9
+      "badges": ["tamil-strength", "maths-strength"]
+    },
+    {
+      "rank": 10,
+      "id": "S20230081",
+      "name": "Devi Lakshmi",
+      "rollNo": "S20230081",
+      "class": "10",
+      "section": "C",
+      "academicYear": "2024-2025",
+      "attendance": 87,
+      "isMarked": true,
+      "username": "devi_lakshmi_s20230081",
+      "email": "devi.lakshmi.s20230081@example.com",
+      "marks": {
+        "tamil": 79,
+        "english": 78,
+        "maths": 80,
+        "science": 79,
+        "social": 79
+      },
+      "totalMarks": 395,
+      "percentage": 79,
+      "grade": "C+",
+      "status": "Pass",
+      "password": "Devi#395",
+      "badges": ["consistent-attendance"]
+    },
+    {
+      "rank": 11,
+      "id": "S20230111",
+      "name": "Sneha Reddy",
+      "rollNo": "S20230111",
+      "class": "10",
+      "section": "A",
+      "academicYear": "2024-2025",
+      "attendance": 90,
+      "isMarked": true,
+      "username": "sneha_reddy_s20230111",
+      "email": "sneha.reddy.s20230111@example.com",
+      "marks": {
+        "tamil": 45,
+        "english": 98,
+        "maths": 78,
+        "science": 87,
+        "social": 52
+      },
+      "totalMarks": 360,
+      "percentage": 72,
+      "grade": "B+",
+      "status": "Pass",
+      "password": "Sneha#90",
+      "badges": ["english-excellence", "science-strength"]
+    },
+    {
+      "rank": 12,
+      "id": "S20230090",
+      "name": "Kiran",
+      "rollNo": "S20230090",
+      "class": "10",
+      "section": "C",
+      "academicYear": "2024-2025",
+      "attendance": 85,
+      "isMarked": true,
+      "username": "kiran_s20230090",
+      "email": "kiran.s20230090@example.com",
+      "marks": {
+        "tamil": 76,
+        "english": 74,
+        "maths": 78,
+        "science": 30,
+        "social": 76
+      },
+      "totalMarks": 334,
+      "percentage": 66.8,
+      "grade": "C",
+      "status": "Fail",
+      "password": "Kiran380!",
+      "badges": ["needs-improvement"]
+    },
+    {
+      "id": "S20230112",
+      "name": "Rahul Kumar",
+      "rollNo": "S20230112",
+      "class": "10",
+      "section": "A",
+      "academicYear": "2024-2025",
+      "attendance": 85,
+      "isMarked": false,
+      "username": "rahul_kumar_s20230112",
+      "email": "rahul.kumar.s20230112@example.com",
+      "marks": null,
+      "totalMarks": null,
+      "percentage": null,
+      "grade": null,
+      "status": "Unmarked",
+      "password": "Rahul@85",
+      "badges": []
+    },
+    {
+      "id": "S20230113",
+      "name": "Meena Raj",
+      "rollNo": "S20230113",
+      "class": "10",
+      "section": "A",
+      "academicYear": "2024-2025",
+      "attendance": 91,
+      "isMarked": false,
+      "username": "meena_raj_s20230113",
+      "email": "meena.raj.s20230113@example.com",
+      "marks": null,
+      "totalMarks": null,
+      "percentage": null,
+      "grade": null,
+      "status": "Unmarked",
+      "password": "Meena@91",
+      "badges": []
     },
     {
       "id": "S20230115",
@@ -358,7 +372,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Anjali@82"
+      "password": "Anjali@82",
+      "badges": []
     },
     {
       "id": "S20230116",
@@ -376,7 +391,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Sanjay@87"
+      "password": "Sanjay@87",
+      "badges": []
     },
     {
       "id": "S20230117",
@@ -394,7 +410,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Rajesh@89"
+      "password": "Rajesh@89",
+      "badges": []
     },
     {
       "id": "S20230118",
@@ -412,7 +429,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Pooja#90"
+      "password": "Pooja#90",
+      "badges": []
     },
     {
       "id": "S20230119",
@@ -430,7 +448,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Anitha#88"
+      "password": "Anitha#88",
+      "badges": []
     },
     {
       "id": "S20230120",
@@ -448,7 +467,8 @@
       "percentage": null,
       "grade": null,
       "status": "Unmarked",
-      "password": "Mohan@86"
+      "password": "Mohan@86",
+      "badges": []
     }
   ]
 }
