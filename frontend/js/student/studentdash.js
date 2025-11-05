@@ -238,60 +238,7 @@ async function loadStudentData() {
             `;
             
             // Add some basic styling if needed
-            if (!document.querySelector('#student-info-styles')) {
-                const style = document.createElement('style');
-                style.id = 'student-info-styles';
-                style.textContent = `
-                    .student-info-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                        gap: 15px;
-                        padding: 10px;
-                    }
-                    .info-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        padding: 12px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        border-left: 4px solid #007bff;
-                    }
-                    .info-item i {
-                        font-size: 1.2em;
-                        color: #007bff;
-                        width: 24px;
-                        text-align: center;
-                    }
-                    .info-content {
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .info-label {
-                        font-size: 0.85em;
-                        color: #6c757d;
-                        font-weight: 500;
-                    }
-                    .info-value {
-                        font-size: 1em;
-                        color: #343a40;
-                        font-weight: 600;
-                    }
-                    .status-pass {
-                        color: #28a745;
-                        font-weight: 600;
-                    }
-                    .status-fail {
-                        color: #dc3545;
-                        font-weight: 600;
-                    }
-                    .status-unmarked {
-                        color: #6c757d;
-                        font-weight: 600;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+            
         }
         
     } catch (err) {

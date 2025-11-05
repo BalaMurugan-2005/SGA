@@ -182,7 +182,7 @@
       "password": "Manoj400!"
     },
     {
-      "rank": 9,
+      "rank": 10,
       "id": "S20230081",
       "name": "Devi Lakshmi",
       "rollNo": "S20230081",
@@ -207,7 +207,7 @@
       "password": "Devi#395"
     },
     {
-      "rank": 11,
+      "rank": 12,
       "id": "S20230090",
       "name": "Kiran",
       "rollNo": "S20230090",
@@ -279,7 +279,7 @@
       "grade": "B+",
       "status": "Pass",
       "password": "Sneha#90",
-      "rank": 10
+      "rank": 11
     },
     {
       "id": "S20230112",
@@ -325,15 +325,22 @@
       "section": "B",
       "academicYear": "2024-2025",
       "attendance": 80,
-      "isMarked": false,
+      "isMarked": true,
       "username": "vikram_singh_s20230114",
       "email": "vikram.singh.s20230114@example.com",
-      "marks": null,
-      "totalMarks": null,
-      "percentage": null,
-      "grade": null,
-      "status": "Unmarked",
-      "password": "Vikram#80"
+      "marks": {
+        "tamil": 89,
+        "english": 78,
+        "maths": 89,
+        "science": 75,
+        "social": 69
+      },
+      "totalMarks": 400,
+      "percentage": 80,
+      "grade": "A",
+      "status": "Pass",
+      "password": "Vikram#80",
+      "rank": 9
     },
     {
       "id": "S20230115",
