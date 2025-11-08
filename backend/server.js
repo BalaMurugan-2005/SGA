@@ -28,11 +28,11 @@ app.post('/api/login', (req, res) => {
         if (userType === 'student') {
             const studentData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/student/Student.json'), 'utf8'));
             users = studentData.students || studentData;
-            redirectUrl = '/frontend/templates/student/Student_DashBoard.html';
+            redirectUrl = '/templates/student/Student_DashBoard.html';
         } else {
             const teacherData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/teacher/teacherData.json'), 'utf8'));
             users = teacherData;
-            redirectUrl = '/frontend/templates/Teacher/Teacher_DashBoard.html';
+            redirectUrl = '/templates/Teacher/Teacher_DashBoard.html';
         }
         
         const user = users.find(u => 
@@ -311,6 +311,7 @@ app.post('/api/student/:id/marks', (req, res) => {
         // Save back to file
         if (studentData.students) {
             studentData.students = students;
+            fs.writeFileSync(studentDataPath, JSON.stringify(studentData, null, 2));
         } else {
             // If it's directly an array
             fs.writeFileSync(studentDataPath, JSON.stringify(students, null, 2));
@@ -412,9 +413,13 @@ app.get('*', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+// CRITICAL: Bind to 0.0.0.0 for Render
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 GradeMaster Server running on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📍 Host: 0.0.0.0`);
     console.log(`📊 Production URL: https://student-grade-app-h1b9.onrender.com`);
     console.log(`🔐 Login available at: https://student-grade-app-h1b9.onrender.com`);
+    console.log(`🎓 Student Login: bala_murugan_s20230045 / Bala9677540588#`);
+    console.log(`👩‍🏫 Teacher Login: sarah_johnson / Sarah@7284`);
 });
