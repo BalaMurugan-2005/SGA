@@ -422,8 +422,8 @@ app.get('/teacher/profile', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/Teacher/teacher_profile.html'));
 });
 
-// Handle all other routes - serve login page
-app.get('*', (req, res) => {
+// FIXED: Handle all other routes - use a function instead of '*'
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/templates/login.html'));
 });
 
